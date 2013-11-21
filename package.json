@@ -1,0 +1,14 @@
+{
+  "name": "hivemindhealth",
+  "version": "0.0.1",
+  "private": "true",
+  "repository": "https://github.com/angular/angular-seed",
+  "dependencies": {
+    "express": "3.4.4",
+    "jade": "*",
+    "restler": "*",
+    "crypto": "*",
+    "log4js": "*",
+    "oauth": "*"
+  }
+}

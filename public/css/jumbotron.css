@@ -1,0 +1,36 @@
+/* Move down content because we have a fixed navbar that is 50px tall */
+body { 
+  padding-top: 50px;
+  padding-bottom: 20px;
+  background: url('../img/sneaker_mesh_fabric.png');
+  background-repeat: repeat;
+}
+
+/* not working / not able to overload bootstraps styling? */
+input {
+  /* Use the mesh background in our search form field */
+  background-color: none;
+  background: url('../img/sneaker_mesh_fabric.png');
+
+  background-repeat: repeat;
+}
+
+/* Background top */
+.jumbotron {
+  background: url('../img/Birch_compressed.jpg');
+  background-position:center; 
+}
+
+.back-right-img {
+  position: absolute;
+  right: 10px;
+  top: 60px;
+}
+
+/* API resource quotes */
+.quote {
+  background: url('../img/double-quote-40x26.png');
+  background-position: left top;
+  background-repeat: no-repeat;
+  padding: 8px 0 0 10px;
+}

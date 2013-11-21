@@ -1,0 +1,21 @@
+.container
+  .row
+    div(data-ng-bind='search_results')
+    each thing in data
+      li= thing
+
+    .col-md-4
+      h2 FatSecret 
+        span.small
+          a(href='http://platform.fatsecret.com/api/') api
+      container
+        div(data-ng-bind="search_results")
+
+    .col-md-4
+      h2 LabelAPI 
+        span.small
+          a(href='http://developer.foodessentials.com/api') api
+    .col-md-4
+      h2 Coming Soon
+      p
+        a.btn.btn-default(href='#', role='button') View details »
