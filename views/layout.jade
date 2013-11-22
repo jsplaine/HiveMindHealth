@@ -8,7 +8,7 @@ html(lang='en' data-ng-app='HiveMindHealth')
     link(rel='shortcut icon', href='img/favicon.ico')
     title HiveMindHealth.com ™
     // Bootstrap core CSS 
-    link(href='css/bootstrap.min.css', rel='stylesheet')
+    link(href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css', rel='stylesheet')
     // Custom css for this template 
     link(href='css/jumbotron.css', rel='stylesheet')
     // Wikipedia tooltips 
@@ -37,10 +37,12 @@ html(lang='en' data-ng-app='HiveMindHealth')
             sup ™
           p Finding consensus on matters of nutrition can be tricky.
           p Tap into the hive mind!
-        form.navbar-form.navbar-left(role='search')
-          .form-group
-            input.form-control(type='text' placeholder='Search' data-ng-model='search_term') 
-            button.btn.btn-default.btn-primary(data-toggle="collapse" data-target=".collapseJumbo" type='submit' data-ng-click='search()') Submit »
+        .col-lg-6
+          form.navbar-form.navbar-left
+            .input-group
+              span.input-group-btn
+                button.btn.btn-default.btn-primary(data-toggle="collapse" data-target=".collapseJumbo" type='submit' data-ng-click='search()') Submit »
+              input.form-control(type='text' placeholder='Search' data-ng-model='search_term') 
       .container
         .collapseJumbo
           small
@@ -66,13 +68,9 @@ html(lang='en' data-ng-app='HiveMindHealth')
         |  2013
     // Bootstrap core JavaScript
     script(src='https://code.jquery.com/jquery-1.10.2.min.js')
-    script(src='js/bootstrap.min.js')
+    script(src='//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js')
     script(src='js/wikipedia-tooltip.0.1.js')
     script(src='js/HiveMindHealth.js')
-    script(src='http://platform.fatsecret.com/js?key=549396a7628644e48ea0351c35858883');
-    script 
-      fatsecret.addRef("foodtitle", "food_title"); 
-      fatsecret.addRef("nutritionpanel", "nutrition_panel"); 
     script(type='text/javascript')
       $(document).ready(function(){
       $('.wikihover').wiki_tooltip({wiki_lang : 'en'});
