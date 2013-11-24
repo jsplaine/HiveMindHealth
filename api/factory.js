@@ -6,7 +6,7 @@
  * Dependencies
  */
 
-var fatsecret = require('./fatsecret/fatsecret');
+var fatSecret = require('./fatsecret/fatsecret');
 
 /*
  * Constants
@@ -15,7 +15,8 @@ var fatsecret = require('./fatsecret/fatsecret');
 // The APIs and their Objects
 var APIs = [
   { name: 'fatsecret',
-    obj: fatsecret }
+    obj: fatSecret,
+    info: require('../config/resources').fatsecret }
 ];
 
 /*
@@ -45,8 +46,9 @@ var getResults = function(req, res) {
       apiCt      = APIs.length; 
 
   for (var i = 0; i < apiCt; i++) {
+    var apiInfo = APIs[i].info;
     APIFactory(APIs[i].obj, "search", searchTerm).results(function(r) {
-      res.json(r);
+      res.json({ results: r, api_info: apiInfo });
     });
   }
 }

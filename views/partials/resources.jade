@@ -1,11 +1,13 @@
-.container(data-ng-show="resultsTab")
+.container(data-ng-show='resultsTab')
   .row
     .col-md-4
-      div(data-ng-repeat="thing in search_results")
-        a(href="{{thing.url}}") {{thing.title}}
-    .col-md-4
-    .col-md-4
-.container(data-ng-show="resourcesTab")
+      h2 {{ search_results.api_info.print_name }} 
+        span.small 
+          a(href='{{ search_results.api_info.api_url_link }}') api
+      blockquote
+        div(data-ng-repeat='result in search_results.results')
+          a(href='{{result.url}}') {{result.title}}
+.container(data-ng-show='resourcesTab')
   .row
     .col-md-4
       h2 FatSecret 

@@ -1,9 +1,11 @@
 {
   "fatsecret" : {
-    "api_url"    : "http://platform.fatsecret.com/rest/server.api",
-    "site_url"   : "http://fatsecret.com",
-    "quote_attr" : "fatsecret.com",
-    "quote"      : [
+    "print_name"   : "FatSecret",
+    "api_url"      : "http://platform.fatsecret.com/rest/server.api",
+    "api_url_link" : "http://platform.fatsecret.com/api",
+    "site_url"     : "http://fatsecret.com",
+    "quote_attr"   : "fatsecret.com",
+    "quote"        : [
     
       "The FatSecret Platform API provides a suite of nutrition, exercise and weight management features that can easily be embedded in your web pages with JavaScript.",
     
