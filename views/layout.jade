@@ -29,7 +29,7 @@ html(lang='en' data-ng-app='HiveMindHealth')
             sup ™
     .jumbotron  
       .container
-        div(ng-hide="hideMe")
+        div(ng-hide="hideJumbo")
           h1 Welcome to Hive Mind Health
             sup ™
           p Finding consensus on matters of nutrition can be tricky.
@@ -40,19 +40,13 @@ html(lang='en' data-ng-app='HiveMindHealth')
               span.input-group-btn
                 button.btn.btn-default.btn-primary(type='submit' data-ng-click='search()') Submit »
               input.form-control(type='text' placeholder='Search' data-ng-model='search_term') 
-      .container(ng-hide="hideMe")
+      .container(ng-hide="hideJumbo")
         small
          | hivemind ... collective consciousness 
          abbr.wikihover(rel='Collective consciousness') [?]
          |  /  swarm intelligence 
          abbr.wikihover(rel='Swarm intelligence') [?]
       img.back-right-img(src='img/pineapple-icon-white.png')
-    .container
-      ul.nav.nav-tabs
-        li#resources(ng-class='{ active: resourcesTab }')
-          a(href='javascript: void(0)') Resources
-        li#results(ng-class='{ active: resultsTab }')
-          a(href='javascript: void(0)') Results
 
     div(data-ng-view)
 

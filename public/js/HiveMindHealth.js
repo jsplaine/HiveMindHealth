@@ -12,62 +12,118 @@ var HiveMindHealth = angular.module('HiveMindHealth', ['ngRoute']);
 
 HiveMindHealth.config(function($routeProvider) {
   $routeProvider
-    .when('/', { controller: 'SearchController',
-                 templateUrl: 'resources' })
-    .when('/results', { controller: 'SearchController',
-                        templateUrl: 'resources' })
+    .when('/', { controller: 'ResultsController',
+                 templateUrl: 'results' })
     .otherwise({ redirectTo: '/' });
 });
-
-// sharedService! http://www.youtube.com/watch?v=1OALSkJGsRw
 
 /**
  * Controllers
  */
 
-// Search controller
-HiveMindHealth.controller('SearchController', function($scope, $rootScope, $http) {
-  // $rootScope.$on($routeChangeStart, function(event, next, current) {
-  //   $scope. Show that something is loading
-  //    or say, switch the tab $on($routeChangeComplete)
-  // http://www.youtube.com/watch?v=P6KITGRQujQ&list=UUKW92i7iQFuNILqQOUOCrFw&index=4&feature=plcp ??
-  // }
+/**
+ * SearchController
+ *
+ * @description Handles search processing, shrinking the jumbotron, and
+ *  switching to the results tab after an initial search
+ */
 
-  $rootScope.resourcesTab = true;
-  $rootScope.resultsTab   = false;
+HiveMindHealth.controller('SearchController', function($scope, $http, tabService) {
+  $scope.tabs = {};
 
   $scope.search = function() {
-    $scope.hideMe = true;
-    console.log('in SearchController::search(), search: ' + $scope.search_term);
-    $http.post('/search', { "search_term": $scope.search_term })
+    // collapse the jumbotron
+    $scope.hideJumbo = true;
+    $http.post('/search', { "search_term" : $scope.search_term })
       .success(function(data) {
-        // $scope.search_results = JSON.stringify(data);
-        $rootScope.search_results = data;
-
-        // switch tabs
-        $rootScope.resourcesTab = false;
-        $rootScope.resultsTab   = true;
+        // switch to the results tab
+        tabService.switchTab($scope.tabs, 'results');
+        $scope.search_results = data;
       })
-    ;                                             
+    ;  
   };
 });
 
-// Results controller
-HiveMindHealth.controller('ResultsController', function($scope) {
-  // Todo
-});
+/**
+ * ResultsController
+ *
+ * @description Child of SearchController, currently just handles
+ *  tab switching. This controller has plenty of work in its 
+ *  future, like helping users interact with search results.
+ */
 
-// Resources controller
-HiveMindHealth.controller('ResourcesController', function($scope) {
+HiveMindHealth.controller('ResultsController', function($scope, tabService) {
+  // show the default tab
+  tabService.switchTab($scope.tabs);
+
+  $scope.showResults   = function() {
+    tabService.switchTab($scope.tabs, 'results');
+  }
+
+  $scope.showResources = function() {
+    tabService.switchTab($scope.tabs, 'resources');
+  }
 });
 
 /**
- * Factories
+ * Services
  */
 
-// HiveMindHealth.factory('Search', function() {
-// 
-// });
+/**
+ * tabService
+ *
+ * @description Singleton that returns an object containing a
+ *  switchTab() function. Currently sets the 'resources' tab
+ *  as the default.
+ */
+
+HiveMindHealth.factory('tabService', function() {
+  var tabService = {},
+      lastTab    = 'resources';
+  
+  /**
+   * switchTab
+   *
+   * @description Switches to the given named tab, or if undefined
+   *  the name of the last tab visited which defaults to 'resources'
+   *
+   * @param scope {Object}   the scope object to act upon
+   * @oparam tab {String}    optional tab to switch to
+   */
+
+  tabService.switchTab = function(tabs, tab) {
+    if (typeof tab === "undefined" || typeof tab !== "string") {
+      tab = lastTab;
+    }
+
+    switch (tab.toLowerCase()) { 
+      case "results": 
+        showResults(tabs);
+        break;
+
+      case "resources":
+        showResources(tabs);
+        break;
+
+      default:
+        tabsService.switchTab(tabs, lastTab)
+    }
+  }
+
+  return tabService;
+
+  function showResults(tabs) {
+    tabs['resourcesTab'] = false;
+    tabs['resultsTab']   = true;
+    lastTab = "results";
+  };
+
+  function showResources(scope) {
+    scope['resourcesTab'] = true;
+    scope['resultsTab']   = false;
+    lastTab = "resources";
+  };
+});
 
 // HiveMindHealth.factory('FatSecret', function($resource) {
 //   return $resource(

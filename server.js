@@ -51,10 +51,6 @@ app.get('/', function(req, res) {
   res.render('index');
 });
 
-app.get('/resources', function(req, res) {
-  res.render('partials/resources');
-});
-
 app.get('/results', function(req, res) {
   res.render('partials/results');
 });
