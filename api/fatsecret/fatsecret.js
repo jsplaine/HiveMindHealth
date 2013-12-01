@@ -51,6 +51,8 @@ var FatSecret = function(reqType, searchTerm) {
   var date = new Date;
 
   if (typeof(reqType) !== 'string' || typeof(searchTerm) !== 'string') {
+    log.error("Unexpected FatSecret() args, reqType:", 
+              reqType, "searchTerm:", searchTerm);
     throw new Error("reqType and searchTerm are both mandatory String arguments");
   }
 
@@ -103,15 +105,15 @@ var FatSecret = function(reqType, searchTerm) {
    *                                ! /2??/
    */
   return {
-    results: function(callb) {
+    get: function(callb) {
       rest.post(fatSecretRestUrl, {
         data: reqObj,
       }).on('complete', function(content, response) {
         if (response.statusCode.toString().match(/2??/)) {
-          callb(foodSearchAdapt(content));
+          callb(foodSearchAdapt(content, searchTerm));
         } else {
-          throw "post failed with status code: " 
-                + response.statusCode;
+          log.debug("response.statusCode !~ /2??/, response:" + response);
+          throw "post failed with status code: " + response.statusCode;
         }
       });
     }
@@ -125,11 +127,12 @@ var FatSecret = function(reqType, searchTerm) {
 /*
  * @description Given a json response, return a view-consumable object
  *
- * @param jsonRes {Object}  the FatSecret food object to translate
- * @return {Array}          the consumable (to the view layer) Array object
+ * @param jsonRes {Object}     the FatSecret food object to translate
+ * @param searchTerm {String}  the search term
+ * @return {Array}             the consumable (to the view layer) Array object
  */
 
-function foodSearchAdapt(jsonRes) {
+function foodSearchAdapt(jsonRes, searchTerm) {
 
   var ret = [];
 
@@ -139,24 +142,27 @@ function foodSearchAdapt(jsonRes) {
   }
 
   if (typeof jsonRes !== "object") {
-    log.error("unexpected argument type: ");
-    log.error(jsonRes);
+    log.error("jsonRes is not an object: ", jsonRes);
     return ret;
   }
 
-  if (jsonRes.foods === undefined 
-      || jsonRes.foods.food === undefined 
-      || jsonRes.foods.food.length === undefined) {
-    // No food to objects to parse, something's wrong but let
-    //  the view do it's thing (with nothing)
-    log.error("unexpected response object");
-    // log.error(JSON.stringify(jsonRes));
+  // If there's no foods object, something's amiss
+  if (jsonRes.foods === undefined) {
+    log.error("unexpected response object: ", jsonRes);
     return ret; 
+  }
+
+  // At this point, no food object means that no matching 
+  //  food was found
+  if (jsonRes.foods.food === undefined) {
+    log.debug("no results found for:", searchTerm);
+    return ret;
   }
 
   for (var i in jsonRes.foods.food) {
     ret.push(translateFoodObj(jsonRes.foods.food[i]));
   }
+
   return ret;
 }
 

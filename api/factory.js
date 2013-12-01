@@ -6,7 +6,8 @@
  * Dependencies
  */
 
-var fatSecret = require('./fatsecret/fatsecret');
+var fatSecret = require('./fatsecret/fatsecret'),
+    log       = require('log4js').getLogger();
 
 /*
  * Constants
@@ -20,21 +21,6 @@ var APIs = [
 ];
 
 /*
- * @description APIFactory
- *
- * @param api {Object}          the type of request we're making
- * @param reqType {String}      the type of request we're making
- * @param searchTerm {String}   the search term
- */
-
-var APIFactory = function(apiObj, reqType, searchTerm) {
-  if (typeof(searchTerm) !== 'string' || typeof(reqType) !== 'string' ) {
-    throw new Error("searchTerm and reqType are mandatory String arguments");
-  }
-  return apiObj(reqType, searchTerm);
-}
-
-/*
  * @description get results from calls to all the APIs
  *
  * @param req {Object} the request object
@@ -42,14 +28,39 @@ var APIFactory = function(apiObj, reqType, searchTerm) {
  */
 
 var getResults = function(req, res) {
-  var searchTerm = req.body.search_term,
-      apiCt      = APIs.length; 
+  var result = { results: [], api_info: {} };
 
-  for (var i = 0; i < apiCt; i++) {
+  // check for empty search field / submit
+  if (typeof req.body === "object" && 
+        typeof req.body.search_term === "undefined") {
+    log.debug("req.body.search_term empty");
+    res.json(result);
+    return;
+  }
+
+  // check for malformed request
+  if (typeof req.body === "undefined") {
+    res.send(400);
+    log.error("malformed request, req.body undefined:", req);
+    return;
+  }
+ 
+  var searchTerm = req.body.search_term;
+
+  for (var i = 0, apiCt = APIs.length; i < apiCt; i++) {
     var apiInfo = APIs[i].info;
-    APIFactory(APIs[i].obj, "search", searchTerm).results(function(r) {
-      res.json({ results: r, api_info: apiInfo });
-    });
+    try {
+      var api = APIs[i].obj("search", searchTerm);
+      api.get(function(r) {
+        result.results  = r;
+        result.api_info = apiInfo;
+        res.json(result);
+      });
+    } catch (e) {
+      res.send(404, APIs[i].name + " request failed");
+      log.error(APIs[i].name + " request failed:", e);
+      log.debug("request was:", req, " response was:", res);
+    }
   }
 }
 
