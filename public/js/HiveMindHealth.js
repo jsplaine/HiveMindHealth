@@ -32,8 +32,18 @@ HiveMindHealth.controller('SearchController', function($scope, $http, tabService
   $scope.tabs = {};
 
   $scope.search = function() {
+    if (typeof $scope.search_term === 'string') {
+      $scope.search_term.replace(/^\s+|\s+$/g, '');
+    }
+
+    // return if the form is empty
+    if ($scope.search_term.length === 0) {
+      return;
+    }
+
     // collapse the jumbotron
     $scope.hideJumbo = true;
+
     $http.post('/search', { "search_term" : $scope.search_term })
       .success(function(data) {
         // switch to the results tab

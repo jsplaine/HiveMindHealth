@@ -47,8 +47,9 @@ var LOOKUP = {
  */
 
 var FatSecret = function(reqType, searchTerm) {
-  // May want to delay this, we're not calling the API in
-  //  this constructor
+  // May want to delay date creation, we're not calling the API in
+  //  this constructor.  Though fatSecret seems to only care that 
+  //  our subsequent dates are of greater value.
   var date = new Date;
 
   if (typeof(reqType) !== 'string' || typeof(searchTerm) !== 'string') {
@@ -61,6 +62,8 @@ var FatSecret = function(reqType, searchTerm) {
     throw new Error("searchTerm cannot be an empty string");
   }
 
+  log.debug("searchTerm:", searchTerm);
+
   // Note that the keys stay in alphabetical order
   var reqObj = {
     format:                 'json',
@@ -70,7 +73,7 @@ var FatSecret = function(reqType, searchTerm) {
     oauth_signature_method: 'HMAC-SHA1',
     oauth_timestamp:        Math.floor(date.getTime() / 1000),
     oauth_version:          '1.0',
-    search_expression:      searchTerm
+    search_expression:      searchTerm.replace(/\s+/g, '-')
   };
 
   // Construct the oauth_signature

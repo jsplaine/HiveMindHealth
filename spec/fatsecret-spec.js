@@ -23,7 +23,7 @@ describe('FatSecret without calling the api factory', function() {
 
       waitsFor(function() {
         return(results !== undefined);
-      }, 'a results', 2000);
+      }, 'a result', 2000);
       
       runs(function() {
         expect(results.length).toBeGreaterThan(0);
@@ -45,10 +45,25 @@ describe('FatSecret without calling the api factory', function() {
 
     waitsFor(function() {
       return(results !== undefined);
-    }, 'a results', 2000);
+    }, 'a result', 2000);
     
     runs(function() {
       expect(results.length).toEqual(0);
+    });
+  });
+
+  it("can handle spaces in search", function() {
+    runs(function() {
+      var getFunc = FatSecret('search', '   hot   dogs ');
+      getFunc.get(callB);
+    });
+
+    waitsFor(function() {
+      return(results !== undefined);
+    }, 'a result', 2000);
+    
+    runs(function() {
+      expect(results.length).toBeGreaterThan(0);
     });
   });
 
