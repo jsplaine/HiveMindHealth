@@ -32,8 +32,10 @@ var getResults = function(req, res) {
 
   // check for empty search field / submit
   if (typeof req.body === "object" && 
-        typeof req.body.search_term === "undefined") {
+        ( typeof req.body.search_term === "undefined"
+          || req.body.search_term.length === 0 )) {
     log.debug("req.body.search_term empty");
+    result.api_info = undefined;
     res.json(result);
     return;
   }

@@ -39,7 +39,8 @@ var LOOKUP = {
 };
 
 /*
- * @description FatSecret Constructor
+ * @description FatSecret Constructor.  Throws if the arguments are
+ *  missing or malformed, including when searchTerm is an empty string.
  *
  * @param reqType {String}      the type of request we're making
  * @param searchTerm {String}   the search term
@@ -54,6 +55,10 @@ var FatSecret = function(reqType, searchTerm) {
     log.error("Unexpected FatSecret() args, reqType:", 
               reqType, "searchTerm:", searchTerm);
     throw new Error("reqType and searchTerm are both mandatory String arguments");
+  }
+
+  if (searchTerm.length === 0) {
+    throw new Error("searchTerm cannot be an empty string");
   }
 
   // Note that the keys stay in alphabetical order
