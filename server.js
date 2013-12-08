@@ -24,7 +24,6 @@ app.use(express.static(__dirname + '/public/'));
 app.use(express.favicon(__dirname + '/public/img/favicon.ico'));
 
 app.use(express.json());
-app.use(express.methodOverride());
 app.use(app.router);
 
 app.configure('development', function(){
