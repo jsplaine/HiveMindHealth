@@ -1,0 +1,442 @@
+/*
+ * Mock FatSecret server
+ *
+ * XXX find more unique real-world FatSecret server responses
+ *  like 'bad oauth signature', and create tests proving we can
+ *  can handle them.
+ *
+ * note: process.env.FATSECRETPORT must be set.
+ */
+
+/*
+ * dependencies
+ */
+
+var express = require('express'),
+    log     = require('log4js').getLogger(),
+    port    = process.env.FATSECRETPORT;
+
+if (typeof port === "undefined") {
+  throw new Error("FATSECRETPORT must be set");
+}
+
+/*
+ * create server
+ */
+
+var app = express();
+
+app.use(express.urlencoded());
+app.use(app.router);
+app.use(express.errorHandler({ dumpExceptions: true, 
+                               showStack:      true }));
+
+// Error handling defined last
+app.use(function(err, req, res, next){
+  log.error(err.stack);
+  res.send(500, 'Something broke!');
+});
+
+/*
+ * routes
+ */
+
+app.post('*', function(req, res) {
+  log.debug("req.body.search_expression:", req.body.search_expression);
+  
+  var mockResults = getSearchResults(req.body.search_expression);
+  res.json(mockResults.data);
+  res.send(mockResults.statusCode);
+});
+
+/*
+ * listen 
+ */
+
+var srv = app.listen(port, function() {
+  log.info("Mock FatSecret server running on port:", port);
+});
+
+/*
+ * Kill server
+ *
+ * @param {Object} callB   a callback function to call when the server 
+ *                         is done closing
+ */
+
+module.exports = {
+  kill: function(callb) {
+    log.info("killing Mock FatSecret server");
+    srv.close(callb);
+  }
+};
+
+/*
+ * @description Given a searchTerm, does a lookup against our mockResults
+ *   hash and returns a results object, example:
+ *    { statusCode: 200, data: { <the body of the json response> } }
+ *
+ * @param {String} searchTerm    the search term to look up
+ * 
+ * @returns {Object}             an object containing a statusCode and json data
+ */
+
+function getSearchResults(searchTerm) {
+  log.info("Looking for", searchTerm, "mock results");
+  var results = {};
+
+  if (mockResults[searchTerm]) {
+    results.data       = mockResults[searchTerm].data;
+    results.statusCode = mockResults[searchTerm].statusCode;
+  } else {
+    // use nonsensicalSearchTerm mock result
+    results.data       = mockResults["nonsensicalSearchTerm"].data;
+    results.statusCode = 200;
+  }
+
+  return results;
+};
+
+/*
+ * Mock results
+ */ 
+
+var mockResults = {
+  // search term without a space
+  "banana": { 
+    "data": {
+      "foods": {
+        "food": [
+          {
+            "food_description": "Per 100g - Calories: 89kcal | Fat: 0.33g | Carbs: 22.84g | Protein: 1.09g",
+            "food_id": "35755",
+            "food_name": "Bananas",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/usda\/bananas"
+          },
+          {
+            "food_description": "Per 100g - Calories: 89kcal | Fat: 0.33g | Carbs: 22.84g | Protein: 1.09g",
+            "food_id": "5388",
+            "food_name": "Banana",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/banana-raw"
+          },
+          {
+            "brand_name": "Chiquita",
+            "food_description": "Per 1 medium banana - Calories: 110kcal | Fat: 0.00g | Carbs: 30.00g | Protein: 1.00g",
+            "food_id": "3864996",
+            "food_name": "Banana",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/chiquita\/banana"
+          },
+          {
+            "brand_name": "Giant Food",
+            "food_description": "Per 1 banana - Calories: 121kcal | Fat: 0.00g | Carbs: 31.00g | Protein: 1.00g",
+            "food_id": "69416",
+            "food_name": "Bananas (Large)",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/giant-food\/bananas-(large)"
+          },
+          {
+            "brand_name": "Dole",
+            "food_description": "Per 1 medium - Calories: 110kcal | Fat: 0.30g | Carbs: 29.00g | Protein: 1.00g",
+            "food_id": "624623",
+            "food_name": "Bananas",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/dole\/bananas"
+          },
+          {
+            "brand_name": "Del Monte",
+            "food_description": "Per 1 medium - Calories: 110kcal | Fat: 0.00g | Carbs: 29.00g | Protein: 1.00g",
+            "food_id": "1823250",
+            "food_name": "Banana",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/del-monte\/banana"
+          },
+          {
+            "brand_name": "Chiquita",
+            "food_description": "Per 1 mini banana - Calories: 55kcal | Fat: 0.00g | Carbs: 14.50g | Protein: 0.50g",
+            "food_id": "886932",
+            "food_name": "Mini Banana",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/chiquita\/mini-banana"
+          },
+          {
+            "brand_name": "Dole",
+            "food_description": "Per 1 medium - Calories: 110kcal | Fat: 0.00g | Carbs: 29.00g | Protein: 1.00g",
+            "food_id": "547041",
+            "food_name": "Organic Bananas",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/dole\/organic-bananas"
+          },
+          {
+            "brand_name": "Del Monte",
+            "food_description": "Per 2 mini bananas - Calories: 90kcal | Fat: 0.00g | Carbs: 24.00g | Protein: 1.00g",
+            "food_id": "983492",
+            "food_name": "Mini Bananas",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/del-monte\/mini-bananas"
+          },
+          {
+            "food_description": "Per 100g - Calories: 122kcal | Fat: 0.37g | Carbs: 31.89g | Protein: 1.30g",
+            "food_id": "35942",
+            "food_name": "Plantains",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/usda\/plantains"
+          },
+          {
+            "food_description": "Per 100g - Calories: 116kcal | Fat: 0.18g | Carbs: 31.15g | Protein: 0.79g",
+            "food_id": "35943",
+            "food_name": "Plantains (Cooked)",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/usda\/plantains-(cooked)"
+          },
+          {
+            "brand_name": "Trader Joe's",
+            "food_description": "Per 1 banana - Calories: 160kcal | Fat: 8.00g | Carbs: 19.00g | Protein: 0.00g",
+            "food_id": "116469",
+            "food_name": "Frozen Chocolate Covered Banana",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/trader-joes\/frozen-chocolate-covered-banana"
+          },
+          {
+            "food_description": "Per 100g - Calories: 89kcal | Fat: 0.33g | Carbs: 22.84g | Protein: 1.09g",
+            "food_id": "5390",
+            "food_name": "Apple Banana",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/banana-apple-raw"
+          },
+          {
+            "food_description": "Per 145g - Calories: 327kcal | Fat: 18.11g | Carbs: 42.68g | Protein: 6.57g",
+            "food_id": "5552",
+            "food_name": "Chocolate Covered Banana with Nuts",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/banana-chocolate-covered-with-nuts"
+          },
+          {
+            "brand_name": "Denny's",
+            "food_description": "Per 1 banana - Calories: 110kcal | Fat: 0.00g | Carbs: 29.00g | Protein: 1.00g",
+            "food_id": "105571",
+            "food_name": "Banana",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/dennys\/banana"
+          },
+          {
+            "food_description": "Per 132g - Calories: 255kcal | Fat: 14.37g | Carbs: 34.03g | Protein: 1.64g",
+            "food_id": "5395",
+            "food_name": "Fried Ripe Banana",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/banana-ripe-fried"
+          },
+          {
+            "brand_name": "Dairy Queen",
+            "food_description": "Per 1 slice - Calories: 25kcal | Fat: 0.00g | Carbs: 6.00g | Protein: 0.00g",
+            "food_id": "168501",
+            "food_name": "Banana Slices",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/dairy-queen\/banana-slices"
+          },
+          {
+            "food_description": "Per 128g - Calories: 217kcal | Fat: 11.78g | Carbs: 29.95g | Protein: 1.44g",
+            "food_id": "5840",
+            "food_name": "Fried Green Banana",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/green-banana-fried"
+          },
+          {
+            "brand_name": "Gerber",
+            "food_description": "Per 1 bar - Calories: 80kcal | Fat: 0.00g | Carbs: 22.00g | Protein: 1.00g",
+            "food_id": "1898912",
+            "food_name": "Bananas",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/gerber\/bananas\/1-bar"
+          },
+          {
+            "brand_name": "Great Value",
+            "food_description": "Per 1\/3 cup - Calories: 150kcal | Fat: 10.00g | Carbs: 20.00g | Protein: 1.00g",
+            "food_id": "3061430",
+            "food_name": "All Natural Banana Chips",
+            "food_type": "Brand",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/great-value\/all-natural-banana-chips"
+          }
+        ],
+        "max_results": "20",
+        "page_number": "0",
+        "total_results": "75"
+      },
+    },
+    "statusCode": 200
+  },
+
+  // search term with no results
+  "nonsensicalSearchTerm": {
+    "data": {
+      "foods": {
+        "max_results": "20",
+        "page_number":"0",
+        "total_results":"0"
+      }
+    },
+    "statusCode": 200
+  },
+
+  // search term that makes fatSecret freak out
+  "freakOut": {
+    "data": {},
+    "statusCode": 500
+  },
+
+  // search term with a space
+  "hot-dogs": {
+    "data": {
+      "foods": {
+        "food": [
+          {
+            "food_description": "Per 100g - Calories: 307kcal | Fat: 26.10g | Carbs: 4.45g | Protein: 12.65g",
+            "food_id": "1840",
+            "food_name": "Frankfurter or Hot Dog",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-meat-and-poultry"
+          },
+          {
+            "food_description": "Per 113g - Calories: 304kcal | Fat: 17.81g | Carbs: 24.53g | Protein: 10.99g",
+            "food_id": "2841",
+            "food_name": "Frankfurter or Hot Dog with Catsup and\/or Mustard on Bun",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-with-catsup-and-or-mustard-on-bun"
+          },
+          {
+            "food_description": "Per 100g - Calories: 294kcal | Fat: 17.62g | Carbs: 22.24g | Protein: 10.66g",
+            "food_id": "2839",
+            "food_name": "Frankfurter or Hot Dog on Bun",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-plain-on-bun"
+          },
+          {
+            "food_description": "Per 100g - Calories: 127kcal | Fat: 2.80g | Carbs: 8.40g | Protein: 15.50g",
+            "food_id": "1845",
+            "food_name": "Lowfat Frankfurter or Hot Dog",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-meat-and-poultry-lowfat"
+          },
+          {
+            "food_description": "Per 100g - Calories: 326kcal | Fat: 29.27g | Carbs: 1.92g | Protein: 12.77g",
+            "food_id": "1843",
+            "food_name": "Low Salt Frankfurter or Hot Dog",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-low-salt"
+          },
+          {
+            "food_description": "Per 100g - Calories: 238kcal | Fat: 19.68g | Carbs: 1.70g | Protein: 12.77g",
+            "food_id": "1844",
+            "food_name": "Lowfat Beef Frankfurter or Hot Dog",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-beef-lowfat"
+          },
+          {
+            "food_description": "Per 81g - Calories: 211kcal | Fat: 17.97g | Carbs: 4.04g | Protein: 8.36g",
+            "food_id": "1835",
+            "food_name": "Chili-Filled Frankfurter or Hot Dog",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-chili-filled"
+          },
+          {
+            "food_description": "Per 1038g - Calories: 3436kcal | Fat: 282.60g | Carbs: 80.77g | Protein: 132.27g",
+            "food_id": "1832",
+            "food_name": "Baked Breaded Frankfurter or Hot Dog",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-breaded-baked"
+          },
+          {
+            "food_description": "Per 100g - Calories: 266kcal | Fat: 12.97g | Carbs: 25.13g | Protein: 11.46g",
+            "food_id": "2846",
+            "food_name": "Chicken Frankfurter or Hot Dog on Bun",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/chicken-frankfurter-or-hot-dog-plain-on-bun"
+          },
+          {
+            "food_description": "Per 164g - Calories: 366kcal | Fat: 21.12g | Carbs: 29.86g | Protein: 14.32g",
+            "food_id": "2843",
+            "food_name": "Frankfurter or Hot Dog with Chili on Bun",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-with-chili-on-bun"
+          },
+          {
+            "food_description": "Per 128g - Calories: 389kcal | Fat: 25.00g | Carbs: 24.21g | Protein: 16.03g",
+            "food_id": "2840",
+            "food_name": "Frankfurter or Hot Dog with Cheese on Bun",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-with-cheese-plain-on-bun"
+          },
+          {
+            "food_description": "Per 137g - Calories: 263kcal | Fat: 20.15g | Carbs: 10.51g | Protein: 11.14g",
+            "food_id": "2227",
+            "food_name": "Frankfurter or Hot Dog with Chili (No Bun)",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-with-chili-no-bun"
+          },
+          {
+            "food_description": "Per 160g - Calories: 425kcal | Fat: 26.76g | Carbs: 28.03g | Protein: 17.85g",
+            "food_id": "2844",
+            "food_name": "Frankfurter or Hot Dog with Chili and Cheese on Bun",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurter-or-hot-dog-with-chili-and-cheese-on-bun"
+          },
+          {
+            "food_description": "Per 103g - Calories: 188kcal | Fat: 15.86g | Carbs: 4.37g | Protein: 7.18g",
+            "food_id": "2228",
+            "food_name": "Frankfurters or Hot Dogs with Tomato-Based Sauce (Mixture)",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurters-or-hot-dogs-with-tomato-based-sauce-(mixture)"
+          },
+          {
+            "food_description": "Per 304g - Calories: 620kcal | Fat: 48.42g | Carbs: 8.45g | Protein: 35.53g",
+            "food_id": "3131",
+            "food_name": "Egg Omelet or Scrambled Egg with Hot Dogs",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/egg-omelet-or-scrambled-egg-with-hot-dogs"
+          },
+          {
+            "food_description": "Per 116g - Calories: 186kcal | Fat: 15.83g | Carbs: 3.50g | Protein: 7.11g",
+            "food_id": "2604",
+            "food_name": "Frankfurters or Hot Dogs and Sauerkraut (Mixture)",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/frankfurters-or-hot-dogs-and-sauerkraut-(mixture)"
+          },
+          {
+            "food_description": "Per 378g - Calories: 658kcal | Fat: 35.61g | Carbs: 59.26g | Protein: 23.61g",
+            "food_id": "5019",
+            "food_name": "Spaghetti with Tomato Sauce and Frankfurters or Hot Dogs",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/spaghetti-with-tomato-sauce-and-frankfurters-or-hot-dogs"
+          },
+          {
+            "food_description": "Per 1782g - Calories: 4081kcal | Fat: 240.75g | Carbs: 315.41g | Protein: 158.06g",
+            "food_id": "5065",
+            "food_name": "Macaroni or Noodles with Cheese and Frankfurters or Hot Dogs",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/macaroni-or-noodles-with-cheese-and-frankfurters-or-hot-dogs"
+          },
+          {
+            "food_description": "Per 100g - Calories: 104kcal | Fat: 4.60g | Carbs: 11.90g | Protein: 3.70g",
+            "food_id": "5020",
+            "food_name": "Pasta with Tomato Sauce and Frankfurters or Hot Dogs (Canned)",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/pasta-with-tomato-sauce-and-frankfurters-or-hot-dogs-canned"
+          },
+          {
+            "food_description": "Per 117g - Calories: 373kcal | Fat: 24.09g | Carbs: 27.67g | Protein: 11.02g",
+            "food_id": "2837",
+            "food_name": "Corn Dog (Frankfurter or Hot Dog with Cornbread Coating)",
+            "food_type": "Generic",
+            "food_url": "http:\/\/www.fatsecret.com\/calories-nutrition\/generic\/corn-dog-(frankfurter-or-hot-dog-with-cornbread-coating)"
+          }
+        ],
+        "max_results": "20",
+        "page_number": "0",
+        "total_results": "860"
+      }
+    },
+    "statusCode": 200
+  }
+};

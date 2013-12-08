@@ -1,14 +1,24 @@
 {
-  "name": "hivemindhealth",
-  "version": "0.0.1",
-  "private": "true",
-  "repository": "https://github.com/angular/angular-seed",
+  "name":       "hivemindhealth",
+  "version":    "0.0.1",
+  "private":    "true",
+  "repository": "https://github.com/jsplaine/HiveMindHealth",
+
   "dependencies": {
     "express": "3.4.4",
-    "jade": "*",
+    "jade":    "*",
     "restler": "*",
-    "crypto": "*",
-    "log4js": "*",
-    "oauth": "*"
+    "crypto":  "*",
+    "log4js":  "*",
+    "oauth":   "*"
+  },
+
+  "devDependencies": {
+    "jasmine-node": "1.11.0"
+  },
+
+  "scripts": {
+    "test_comment": "test script runs spec files one-at-a-time",
+    "test": "for i in $(find spec -type f -name '*-spec.js'); do jasmine-node $i; done"
   }
 }

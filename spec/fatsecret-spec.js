@@ -1,15 +1,19 @@
-// ToDo: Refactor fatsecret.js with the ability to run offline with mocks
 // ToDo: Replace this spec with a standard RESTfulness validator
 describe('FatSecret without calling the api factory', function() {
-  var FatSecret        = require('../api/fatsecret/fatsecret'),
-      populatedResults = ['id', 'title', 'url', 'unit', 'calories', 
+  var populatedResults = ['id', 'title', 'url', 'unit', 'calories', 
                           'fat', 'carbs', 'protein'],
       callB, 
       results;
 
+  // setup the mock FatSecret server
+  var mockServer = require(__dirname + '/mock/utils').setMockFatSecretServer(),
+      serverUp   = true;
+  
+  var FatSecret  = require(__dirname + '/../api/fatsecret/fatsecret');
+
   beforeEach(function() {
     results = undefined;
-    callB   = function(data) {
+    callB  = function(data) {
       results = data;
     };
   });
@@ -17,7 +21,7 @@ describe('FatSecret without calling the api factory', function() {
   it("with a normal search term, provides sane, well munged results", 
     function() {
       runs(function() {
-        var getFunc = FatSecret('search', 'bananas');
+        var getFunc = FatSecret('search', 'banana');
         getFunc.get(callB);
       });
 
@@ -35,7 +39,8 @@ describe('FatSecret without calling the api factory', function() {
           }
         }
       });
-  });
+    }
+  );
 
   it("returns an empty list given a nonsensical search term", function() {
     runs(function() {
@@ -91,4 +96,15 @@ describe('FatSecret without calling the api factory', function() {
       'reqType and searchTerm are both mandatory String arguments'
     );
   });
+
+  // tear-down the mock server
+  runs(function() {
+    mockServer.kill(function() {
+      serverUp = false;
+    });
+  });
+
+  waitsFor(function() {
+    return(serverUp === false);
+  }, 'the mock server to cleanup', 1000);
 });

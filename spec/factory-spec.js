@@ -1,22 +1,26 @@
 describe('the api factory', function() {
-  var factoryResults = require('../api/factory'),
-      alwaysInfo = ["print_name", "api_url", "api_url_link",
+  var alwaysInfo = ["print_name", "api_url", "api_url_link",
                     "site_url", "quote_attr"], 
-      fakeRes = {}, 
-      fakeReq = {}, 
-      result;
-    
+      fakeRes    = {}, 
+      fakeReq    = {};
+
+  // setup the mock FatSecret server
+  var mockServer = require(__dirname + '/mock/utils').setMockFatSecretServer(),
+      serverUp   = true;
+
+  var factoryResults = require('../api/factory');
+
   beforeEach(function() {
-    result       = {};
-    fakeReq.body = {};
-    fakeRes.json = function(data) {
+    result         = {};
+    fakeReq.body   = {};
+    fakeRes.json   = function(data) {
        result = data;
     };
   });
-  
-  it('has sanely populated results with a normal search', function() {
+
+  it('has sanely populated results with a successful search', function() {
     runs(function() {
-      fakeReq.body.search_term = "tomatoes";
+      fakeReq.body.search_term = "banana";
       factoryResults(fakeReq, fakeRes);
     });
 
@@ -90,4 +94,15 @@ describe('the api factory', function() {
       expect(result.api_info).toBeUndefined();
     });
   });
+
+  // tear-down the mock server
+  runs(function() {
+    mockServer.kill(function() {
+      serverUp = false;
+    });
+  });
+
+  waitsFor(function() {
+    return(serverUp === false);
+  }, 'the mock server to cleanup', 1000);
 });

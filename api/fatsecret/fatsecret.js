@@ -11,11 +11,22 @@
  * Dependencies
  */
 
-var rest             = require('restler'),
-    crypto           = require('crypto'),
-    keys             = require('../../config/privatekeys').fatsecret,
-    fatSecretRestUrl = require('../../config/resources').fatsecret.api_url,
-    log              = require('log4js').getLogger();
+var rest   = require('restler'),
+    crypto = require('crypto'),
+    log    = require('log4js').getLogger(),
+    keys;
+
+// for testing, we recognize a FATSECRETKEYS variable
+if (typeof process.env.FATSECRETKEYS === 'string') {
+  keys = JSON.parse(process.env.FATSECRETKEYS);
+} else {
+  keys = require('../../config/privatekeys').fatsecret;
+}
+
+var fatSecretRestUrl = process.env.FATSECRETURL // for testing
+                    || require('../../config/resources').fatsecret.api_url;
+
+log.debug("FatSecret URL:", fatSecretRestUrl);
 
 /*
  * Constants
@@ -62,7 +73,10 @@ var FatSecret = function(reqType, searchTerm) {
     throw new Error("searchTerm cannot be an empty string");
   }
 
-  log.debug("searchTerm:", searchTerm);
+  // trim leading/trailing spaces
+  searchTerm = searchTerm.replace(/^\s+|\s+$/g, '');
+  // spaces get replaced with hyphens
+  searchTerm = searchTerm.replace(/\s+/g, '-');
 
   // Note that the keys stay in alphabetical order
   var reqObj = {
@@ -73,7 +87,7 @@ var FatSecret = function(reqType, searchTerm) {
     oauth_signature_method: 'HMAC-SHA1',
     oauth_timestamp:        Math.floor(date.getTime() / 1000),
     oauth_version:          '1.0',
-    search_expression:      searchTerm.replace(/\s+/g, '-')
+    search_expression:      searchTerm
   };
 
   // Construct the oauth_signature
@@ -86,7 +100,7 @@ var FatSecret = function(reqType, searchTerm) {
   // yank off that first "&"
   paramsStr = paramsStr.substr(1);
 
-  // create the signature base string as per
+  // create the signature base string
   var sigBaseStr = "POST&"
                  + encodeURIComponent(fatSecretRestUrl)
                  + "&"
@@ -120,11 +134,11 @@ var FatSecret = function(reqType, searchTerm) {
         if (response.statusCode.toString().match(/2??/)) {
           callb(foodSearchAdapt(content, searchTerm));
         } else {
-          log.debug("response.statusCode !~ /2??/, response:" + response);
+          log.error("response.statusCode !~ /2??/, response:" + response);
           throw "post failed with status code: " + response.statusCode;
         }
       });
-    }
+    },
   };
 }
 
