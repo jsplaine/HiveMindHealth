@@ -26,10 +26,12 @@ Visit <a href="http://hivemindhealth.com">HiveMindHealth</a> to take
 
 ## Build and test
 
-### Run tests
+### Run tests (linux / OSX only)
 
-1) `clone https://github.com/jsplaine/HiveMindHealth`
-2) `cd HiveMindHealth && npm test`
+1) install node.js & npm
+2) `git clone https://github.com/jsplaine/HiveMindHealth`
+3) `cd HiveMindHealth && npm install`
+4) `npm test`
 
 ### Continuous Integration
 
