@@ -32,11 +32,15 @@ HiveMindHealth.controller('SearchController', function($scope, $http, tabService
   $scope.tabs = {};
 
   $scope.search = function() {
+    // return if the form is empty
+    if ($scope.search_term === undefined) {
+      return;
+    }
+
+    // strip leading/trailing spaces and return if length=0
     if (typeof $scope.search_term === 'string') {
       $scope.search_term.replace(/^\s+|\s+$/g, '');
     }
-
-    // return if the form is empty
     if ($scope.search_term.length === 0) {
       return;
     }
