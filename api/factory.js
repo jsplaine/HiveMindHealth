@@ -28,26 +28,15 @@ var APIs = [
  */
 
 var getResults = function(req, res) {
-  var result = { results: [], api_info: {} };
+  var searchTerm = req.params.searchTerm || undefined;
+  var result     = { results: [], api_info: {} };
 
-  // check for empty search field / submit
-  if (typeof req.body === "object" && 
-        ( typeof req.body.search_term === "undefined"
-          || req.body.search_term.length === 0 )) {
-    log.debug("req.body.search_term empty");
+  if (searchTerm === undefined) {
+    log.debug("req.params.searchTerm empty");
     result.api_info = undefined;
     res.json(result);
     return;
   }
-
-  // check for malformed request
-  if (typeof req.body === "undefined") {
-    res.send(400);
-    log.error("malformed request, req.body undefined:", req);
-    return;
-  }
- 
-  var searchTerm = req.body.search_term;
 
   for (var i = 0, apiCt = APIs.length; i < apiCt; i++) {
     var apiInfo = APIs[i].info;

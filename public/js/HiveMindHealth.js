@@ -44,7 +44,7 @@ HiveMindHealth.controller('SearchController', function($scope, $http, tabService
     // collapse the jumbotron
     $scope.hideJumbo = true;
 
-    $http.post('/search', { "search_term" : $scope.search_term })
+    $http.get('/search/' + $scope.search_term)
       .success(function(data) {
         // switch to the results tab
         tabService.switchTab($scope.tabs, 'results');

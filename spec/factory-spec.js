@@ -12,7 +12,7 @@ describe('the api factory', function() {
 
   beforeEach(function() {
     result         = {};
-    fakeReq.body   = {};
+    fakeReq.params = {};
     fakeRes.json   = function(data) {
        result = data;
     };
@@ -20,7 +20,7 @@ describe('the api factory', function() {
 
   it('has sanely populated results with a successful search', function() {
     runs(function() {
-      fakeReq.body.search_term = "banana";
+      fakeReq.params.searchTerm = "banana";
       factoryResults(fakeReq, fakeRes);
     });
 
@@ -49,7 +49,7 @@ describe('the api factory', function() {
   it('provides an empty result set with a nonsensical search'
       + ' but still provides expected api_info', function() {
     runs(function() {
-      fakeReq.body.search_term = "somethingNonsensical";
+      fakeReq.params.searchTerm = "somethingNonsensical";
       factoryResults(fakeReq, fakeRes);
     });
 
@@ -75,10 +75,10 @@ describe('the api factory', function() {
     });
   });
 
-  it('returns sane results quickly when the search_term'
+  it('returns sane results quickly when the searchTerm'
       + ' is an empty string', function() {
     runs(function() {
-      fakeReq.body.search_term = "";
+      fakeReq.params.searchTerm = "";
       factoryResults(fakeReq, fakeRes);
     });
 

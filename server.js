@@ -54,7 +54,7 @@ app.get('/results', function(req, res) {
   res.render('partials/results');
 });
 
-app.post('/search', apis);
+app.get('/search/:searchTerm', apis);
 
 // redirect all others to the index
 app.get('*', function(req, res) {
