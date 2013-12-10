@@ -132,9 +132,9 @@ HiveMindHealth.factory('tabService', function() {
     lastTab = "results";
   };
 
-  function showResources(scope) {
-    scope['resourcesTab'] = true;
-    scope['resultsTab']   = false;
+  function showResources(tabs) {
+    tabs['resourcesTab'] = true;
+    tabs['resultsTab']   = false;
     lastTab = "resources";
   };
 });
