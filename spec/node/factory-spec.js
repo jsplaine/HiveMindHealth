@@ -8,7 +8,7 @@ describe('the api factory', function() {
   var mockServer = require(__dirname + '/mock/utils').setMockFatSecretServer(),
       serverUp   = true;
 
-  var factoryResults = require('../api/factory');
+  var factoryResults = require(__dirname + '/../../api/factory');
 
   beforeEach(function() {
     result         = {};

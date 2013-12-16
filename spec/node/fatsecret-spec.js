@@ -9,7 +9,7 @@ describe('FatSecret without calling the api factory', function() {
   var mockServer = require(__dirname + '/mock/utils').setMockFatSecretServer(),
       serverUp   = true;
   
-  var FatSecret  = require(__dirname + '/../api/fatsecret/fatsecret');
+  var FatSecret  = require(__dirname + '/../../api/fatsecret/fatsecret');
 
   beforeEach(function() {
     results = undefined;

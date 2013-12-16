@@ -14,11 +14,12 @@
   },
 
   "devDependencies": {
-    "jasmine-node": "1.11.0"
+    "jasmine-node": "1.11.0",
+    "karma":        "*"
   },
 
   "scripts": {
     "test_comment": "test script runs spec files one-at-a-time",
-    "test": "for i in $(find spec -type f -name '*-spec.js'); do jasmine-node $i; done"
+    "test": "for i in $(find spec/node -type f -name '*-spec.js'); do jasmine-node $i; done; karma start spec/angular/karma.config.js"
   }
 }
