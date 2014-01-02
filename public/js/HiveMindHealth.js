@@ -50,8 +50,8 @@ HiveMindHealth.controller('SearchController', function($scope, $http, tabService
 
     $http.get('/search/' + $scope.search_term)
       .success(function(data) {
-        // switch to the results tab
-        tabService.switchTab($scope.tabs, 'results');
+        // switch to the results taB
+        tabService.showResults($scope.tabs);
         $scope.search_results = data;
       })
     ;  
@@ -61,22 +61,22 @@ HiveMindHealth.controller('SearchController', function($scope, $http, tabService
 /**
  * ResultsController
  *
- * @description Child of SearchController, currently just handles
+ * @description Child of SearchController, currently handles
  *  tab switching. This controller has plenty of work in its 
  *  future, like helping users interact with search results.
  */
 
 HiveMindHealth.controller('ResultsController', function($scope, tabService) {
-  // show the default tab
-  tabService.switchTab($scope.tabs);
+  // show the default tab on Controller load
+  tabService.showResources($scope.tabs);
 
+  // Set UI tab switch actions
   $scope.showResults   = function() {
-    tabService.switchTab($scope.tabs, 'results');
-  }
-
+    tabService.showResults($scope.tabs);
+  };
   $scope.showResources = function() {
-    tabService.switchTab($scope.tabs, 'resources');
-  }
+    tabService.showResources($scope.tabs);
+  };
 });
 
 /**
@@ -86,14 +86,12 @@ HiveMindHealth.controller('ResultsController', function($scope, tabService) {
 /**
  * tabService
  *
- * @description Singleton that returns an object containing a
- *  switchTab() function. Currently sets the 'resources' tab
- *  as the default.
+ * @description Singleton that returns an object containing
+ *  tab switching functions.
  */
 
 HiveMindHealth.factory('tabService', function() {
-  var tabService = {},
-      lastTab    = 'resources';
+  var tabService = {};
   
   /**
    * switchTab
@@ -105,44 +103,15 @@ HiveMindHealth.factory('tabService', function() {
    * @oparam tab {String}    optional tab to switch to
    */
 
-  tabService.switchTab = function(tabs, tab) {
-    if (typeof tab === "undefined" || typeof tab !== "string") {
-      tab = lastTab;
-    }
-
-    switch (tab.toLowerCase()) { 
-      case "results": 
-        showResults(tabs);
-        break;
-
-      case "resources":
-        showResources(tabs);
-        break;
-
-      default:
-        tabsService.switchTab(tabs, lastTab)
-    }
-  }
-
-  return tabService;
-
-  function showResults(tabs) {
+  tabService.showResults = function(tabs) {
     tabs['resourcesTab'] = false;
     tabs['resultsTab']   = true;
-    lastTab = "results";
   };
 
-  function showResources(tabs) {
+  tabService.showResources = function(tabs) {
     tabs['resourcesTab'] = true;
     tabs['resultsTab']   = false;
-    lastTab = "resources";
   };
-});
 
-// HiveMindHealth.factory('FatSecret', function($resource) {
-//   return $resource(
-//     '/api/fatsecret/:search', 
-//     { search: '@search' }, 
-//     { update: { method: 'PUT' } }
-//   );
-// };
+  return tabService;
+});
