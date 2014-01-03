@@ -28,7 +28,7 @@ app.use(app.router);
 
 app.configure('development', function(){
     app.use(express.errorHandler({ dumpExceptions: true, 
-                                   showStack: true }));
+                                   showStack:      true }));
 });
 
 app.configure('production', function(){
@@ -52,6 +52,10 @@ app.get('/', function(req, res) {
 
 app.get('/results', function(req, res) {
   res.render('partials/results');
+});
+
+app.get('/s/:searchTerm', function(req, res) {
+  res.render('index');
 });
 
 app.get('/search/:searchTerm', apis);

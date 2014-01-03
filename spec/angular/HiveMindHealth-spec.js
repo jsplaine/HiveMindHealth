@@ -5,7 +5,7 @@
 //       - Validate results after a non-'fresh' app load
  
 describe('SearchController', function() {
-  var scope, 
+  var scope,
       $httpBackend,
       mockResults; 
 
@@ -44,8 +44,8 @@ describe('SearchController', function() {
   describe('after a successful search', function() {
     beforeEach(function() {
       // do the search
-      scope.search_term = "bananas";
-      scope.search();
+      scope.search.search_term = "bananas";
+      scope.doSearch();
       $httpBackend.flush()
     });
 
@@ -63,8 +63,8 @@ describe('SearchController', function() {
   describe('after submitting with an empty string in the search box', function() {
     beforeEach(function() {
       // do the search
-      scope.search_term = "";
-      scope.search();
+      scope.search.search_term = "";
+      scope.doSearch();
       // this helps us make sure our controller didn't bother calling
       //   the factory with an empty string.
       $httpBackend.verifyNoOutstandingExpectation();
@@ -76,12 +76,15 @@ describe('SearchController', function() {
     });
 
     it('should not have switched to the resultsTab', function() {
-      // checking for undefined because we don't define tabs{} until
-      //  there's been at least one non-empty-string search
-      expect(scope.tabs.resultsTab).toBeUndefined();
+      // SearchController initializes tabs, defaulting to the resources tab
+      expect(scope.tabs.resultsTab).toBeFalsy();
     });
 
     // if search_results are defined, the view will not behave correctly
+    it('should have no search_results defined', function() {
+      expect(scope.search_results).toBeUndefined();
+    });
+
     it('should have no search_results defined', function() {
       expect(scope.search_results).toBeUndefined();
     });
@@ -91,8 +94,8 @@ describe('SearchController', function() {
   describe('after submitting with a nonsensical search term', function() {
     beforeEach(function() {
       // do the search
-      scope.search_term = "gobbledyGuk";
-      scope.search();
+      scope.search.search_term = "gobbledyGuk";
+      scope.doSearch();
       $httpBackend.flush()
     });
 
@@ -114,6 +117,86 @@ describe('SearchController', function() {
     it('should have results defined but length == 0', function() {
       expect(scope.search_results.results).toBeDefined();
       expect(scope.search_results.results.length).toEqual(0);
+    });
+  });
+});
+
+describe('ResultsController', function() {
+  var scope,
+      controller,
+      searchCalled;
+
+  // define our ng-app
+  beforeEach(angular.mock.module('HiveMindHealth'));
+
+  // inject dependencies
+  beforeEach(angular.mock.inject(function($rootScope, $controller) {
+    scope        = $rootScope.$new();
+    searchCalled = false;
+    controller   = $controller;
+
+    // Mocking the behavior of ResultsController's parent
+    scope.search   = {};
+    scope.doSearch = function() { searchCalled = true; };
+  }));
+
+  describe('with routeParam searchTerm defined', function() {
+    beforeEach(function() {
+      // declare the controller
+      controller('ResultsController', { 
+        $scope       : scope,
+        $routeParams : { searchTerm : "bananas" }
+      });
+    });
+    it('should have called parent doSearch() function', function() {
+      expect(scope.search.search_term).toEqual("bananas");
+      expect(searchCalled).toBe(true);
+    });
+  });
+
+  describe('with routeParam searchTerm not defined', function() {
+    beforeEach(function() {
+      // declare the controller
+      controller('ResultsController', { 
+        $scope       : scope,
+        $routeParams : { foo : "bananas" }
+      });
+    });
+
+    it('should have not called the parent doSearch() function', function() {
+      expect(scope.search.search_term).toBeUndefined();
+      expect(searchCalled).toBe(false);
+    });
+  });
+
+  describe('with routeParam searchTerm defined but when results already exist', function() {
+    beforeEach(function() {
+      scope.search_results     = true;
+      scope.search.search_term = "bananas";
+      // declare the controller
+      controller('ResultsController', { 
+        $scope       : scope,
+        $routeParams : { searchTerm : "bananas" }
+      });
+    });
+    it('should have not called the parent doSearch() function', function() {
+      expect(searchCalled).toBe(false);
+    });
+  });
+
+  describe('with searchTerm defined and results exist for a different searchTerm', function() {
+    beforeEach(function() {
+      scope.search_results     = true;
+      scope.search.search_term = "NOTbananas";
+      // declare the controller
+      controller('ResultsController', { 
+        $scope       : scope,
+        $routeParams : { searchTerm : "bananas" }
+      });
+    });
+    it('should have called the parent doSearch() function', function() {
+      expect(scope.search.search_term).toEqual("bananas");
+      expect(searchCalled).toBe(true);
     });
   });
 });
@@ -172,3 +255,5 @@ function getMockResults() {
     }
   };
 }
+
+
