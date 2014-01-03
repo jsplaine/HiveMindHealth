@@ -66,7 +66,7 @@ HiveMindHealth.controller('SearchController', function($scope, $http, $location,
     // collapse the jumbotron
     $scope.hideJumbo = true;
 
-    $http.get('/search/' + $scope.search.search_term)
+    $http.get('/search/' + $scope.search.search_term, { cache: true })
       .success(function(data) {
         $location.path('/s/' + $scope.search.search_term);
         // switch to the results taB
