@@ -58,7 +58,9 @@ app.get('/s/:searchTerm', function(req, res) {
   res.render('index');
 });
 
-app.get('/search/:searchTerm', apis);
+// local services
+app.get('/search/:apiName/:searchTerm', apis.getResults);
+app.get('/apiInfo',                     apis.getInfo);
 
 // redirect all others to the index
 app.get('*', function(req, res) {

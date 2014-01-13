@@ -7,18 +7,41 @@
  */
 
 var fatSecret = require('./fatsecret/fatsecret'),
-    log       = require('log4js').getLogger();
+    log       = require('log4js').getLogger(),
+    resources = require('../config/resources');
 
 /*
  * Constants
  */
 
 // The APIs and their Objects
-var APIs = [
-  { name: 'fatsecret',
-    obj: fatSecret,
-    info: require('../config/resources').fatsecret }
-];
+var APIs = {
+  // FatSecret
+  fatsecret : {
+    obj:    fatSecret,
+    info:   resources.fatsecret
+  },
+  // Reddit
+  reddit : {
+    obj:    undefined,
+    info:   resources.reddit 
+  }
+};
+
+/*
+ * @description get each API name and info object
+ *
+ * @param req {Object} the request object
+ * @param res {Object} the response object
+ */
+
+var getInfo = function(req, res) {
+  var info = [];
+  for (var i in APIs) {
+    info.push({ name: i, data: APIs[i].info});
+  }
+  res.json(info);
+}
 
 /*
  * @description get results from calls to all the APIs
@@ -28,30 +51,44 @@ var APIs = [
  */
 
 var getResults = function(req, res) {
-  var searchTerm = req.params.searchTerm || undefined;
-  var result     = { results: [], api_info: {} };
+  var searchTerm = req.params.searchTerm || undefined,
+      apiName    = req.params.apiName    || undefined,
+      result     = { results: [] };
 
-  if (searchTerm === undefined) {
-    log.debug("req.params.searchTerm empty");
-    result.api_info = undefined;
+  // both searchTerm and apiName are mandatory params
+  if (searchTerm === undefined || apiName === undefined ) {
+    log.warn("bad params!", req.params);
     res.json(result);
     return;
   }
 
-  for (var i = 0, apiCt = APIs.length; i < apiCt; i++) {
-    var apiInfo = APIs[i].info;
-    try {
-      var api = APIs[i].obj("search", searchTerm);
-      api.get(function(r) {
-        result.results  = r;
-        result.api_info = apiInfo;
-        res.json(result);
-      });
-    } catch (e) {
-      res.send(404, APIs[i].name + " request failed");
-      log.error(APIs[i].name + " request failed:", e);
-      log.debug("request was:", req, " response was:", res);
-    }
+  var api = APIs[apiName] || undefined;
+
+  // the controller is in a bad state if this happens
+  if (api === undefined) {
+    log.warn("the api requested does not exist:", apiName);
+    res.json(result);
+    return;
+  }
+
+  // skip if there's no object to use for this API
+  if (api.info.active !== true) {
+    log.info(apiName, "is disabled");
+    res.json(result);
+    return;
+  }
+
+  try {
+    var apiObj = api.obj("search", searchTerm);
+    log.debug("searchTerm:", searchTerm);
+    apiObj.get(function(r) {
+      result.results = r;
+      res.json(result);
+    });
+  } catch (e) {
+    res.json(result);
+    log.error(api.name + " request failed:", e);
+    log.debug("request was:", req, " response was:", res);
   }
 }
 
@@ -59,4 +96,5 @@ var getResults = function(req, res) {
  * Export our results function
  */
 
-module.exports = getResults;
+module.exports.getResults = getResults;
+module.exports.getInfo    = getInfo;

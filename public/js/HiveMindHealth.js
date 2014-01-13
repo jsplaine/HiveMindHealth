@@ -34,10 +34,15 @@ HiveMindHealth.config(function($routeProvider, $locationProvider) {
  *  switching to the results tab after an initial search
  */
 
-HiveMindHealth.controller('SearchController', function($scope, $http, $location, tabService) {
+HiveMindHealth.controller('SearchController', function($scope, $location, $timeout, 
+                                                       tabService, searchService, apiInfo) {
   // initialize state
-  $scope.tabs   = {};
-  $scope.search = {};
+  $scope.tabs           = {};
+  $scope.search         = {};
+  $scope.search_results = {};
+
+  // careful -- populated asynchronously
+  $scope.resource_info  = apiInfo;
 
   // show the resources tab by default
   tabService.showResources($scope.tabs);
@@ -50,31 +55,32 @@ HiveMindHealth.controller('SearchController', function($scope, $http, $location,
    */
 
   $scope.doSearch = function() {
-    // return if the form is empty
-    if ($scope.search.search_term === undefined) {
+    // return if search doesn't validate
+    if (! searchService.trimAndCheck($scope.search)) {
       return;
     }
-
-    // strip leading/trailing spaces and return if length=0
-    if (typeof $scope.search.search_term === 'string') {
-      $scope.search.search_term.replace(/^\s+|\s+$/g, '');
-      if ($scope.search.search_term.length === 0) {
-        return;
-      }
+    
+    // catch the case where we're doing a search before apiInfo
+    //  has had time to populate
+    // XXX fix potention deep recursion
+    if (apiInfo.apis === undefined) {
+      $timeout(function() {
+        $scope.doSearch();
+      }, 200);
+      return;
     }
 
     // collapse the jumbotron
     $scope.hideJumbo = true;
 
-    $http.get('/search/' + $scope.search.search_term, { cache: true })
-      .success(function(data) {
-        $location.path('/s/' + $scope.search.search_term);
-        // switch to the results taB
-        tabService.showResults($scope.tabs);
-        $scope.search_results = data;
-      })
-    ;  
-  };
+    // trigger get requests against each API
+    searchService.searchAPIs(apiInfo.apis, $scope.search.search_term, 
+                               $scope.search_results, function(data) {
+      $location.path('/s/' + $scope.search.search_term);
+      // switch to the results tab
+      tabService.showResults($scope.tabs);
+    })
+  }
 });
 
 /**
@@ -94,9 +100,9 @@ HiveMindHealth.controller('ResultsController', function($scope, tabService, $rou
     tabService.showResults($scope.tabs);
   };
 
-  // On new(), look for and handle history click / browser navigation direct to result view
+  // On new(), look for and handle history click / browser navigation direct-to-result view
   if ($routeParams && $routeParams.searchTerm 
-      && (! $scope.search_results || $routeParams.searchTerm !== $scope.search.search_term)) {
+      && ($scope.search_results === {} || $routeParams.searchTerm !== $scope.search.search_term)) {
     $scope.search.search_term = $routeParams.searchTerm;
     $scope.doSearch();
   }
@@ -105,6 +111,39 @@ HiveMindHealth.controller('ResultsController', function($scope, tabService, $rou
 /**
  * Services
  */
+
+/**
+ * apiInfo
+ *
+ * @description Singleton 'value' that is an object containing
+ *  API resource info for each API.
+ *
+ * note:  That which depends on apiInfo may have to check to see that
+ *  its data field is defined before relying on it.  apiInfo.apis is set
+ *  asynchronously.
+ */
+
+HiveMindHealth.factory('apiInfo', function($http, $timeout) {
+  var retry   = 10,
+      apiInfo = {};
+
+  // set api info
+  (function getApiInfo() {
+    $http.get('/apiInfo', { cache: true })
+      .success(function(res) {
+        apiInfo.apis = res;
+      })
+      .error(function() {
+        if (retry > 0) {
+          getApiInfo();
+          retry--;
+        }
+      })
+    ;
+  })();
+  
+  return apiInfo;
+});
 
 /**
  * tabService
@@ -143,4 +182,70 @@ HiveMindHealth.factory('tabService', function() {
   };
 
   return tabService;
+});
+
+/*
+ * searchService
+ *
+ * @description Singleton that deals with various aspects of searching,
+ *  including search term validation and http search calls
+ */
+
+HiveMindHealth.factory('searchService', function($http) {
+  var searchFactory = {};
+
+  /*
+   * trimAndCheck
+   *
+   * @description validate the search object
+   *
+   * @param search    the search term
+   * @returns true if search_term field is a non-empty string
+   */
+
+  searchFactory.trimAndCheck = function(search) {
+    if (search.search_term === undefined || typeof search.search_term !== 'string') {
+      return false;
+    }
+    // strip leading/trailing spaces and return if length=0
+    search.search_term.replace(/^\s+|\s+$/g, '');
+    if (search.search_term.length === 0) {
+      return false;
+    }
+    return true;
+  };
+
+  /*
+   * searchAPIs
+   *
+   * @description trigger a search against each given api
+   *
+   * @param apis          the list of APIs to call
+   * @param searchTerm    the search term
+   * @param searchResults the search results object to populate
+   * @param callB         the callback, to be called after each successful
+   *                        API search
+   */
+
+  searchFactory.searchAPIs = function(apis, searchTerm, searchResults, callB) {
+    for (var i = 0, len = apis.length; i < len; i++) {
+      var api = apis[i];
+      if (api.data.active !== true) {
+        // skip inactive apis
+        continue;
+      }
+
+      var apiName            = apis[i].name;
+      searchResults[apiName] = { inProgress: true }; 
+       
+      $http.get('/search/' + apiName + '/' + searchTerm, { cache: true })
+        .success(function(data) { 
+          searchResults[apiName] = data;
+          callB();
+         })
+      ;  
+    }
+  };
+
+  return searchFactory;
 });

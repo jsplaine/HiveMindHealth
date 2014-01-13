@@ -7,48 +7,30 @@
 
 .container(data-ng-show='tabs.resultsTab')
   .row
-    .col-md-4
-      div(ng-show='search_results')
-        h2 {{ search_results.api_info.print_name }} 
+    .col-md-4(data-ng-repeat='api in resource_info.apis')
+      div(ng-show='api.data.active === true')
+        h2 {{ api.data.print_name }} 
           span.small 
-            a(href='{{ search_results.api_info.api_url_link }}') api
+            a(href='{{ api.data.api_url_link }}') api
         blockquote
-          div(ng-show='search_results.results.length < 1')
+          div(ng-show='search_results[api].results.length < 1')
             span
               | no results
-          div(data-ng-repeat='result in search_results.results')
+          div(data-ng-repeat='result in search_results[api.name].results')
             a(href='{{result.url}}') {{result.title}}
-
-      .container(ng-show='search_results === undefined')
-        h4 Please Enter in a search term
+          div.alert.alert-warning(ng-show='search_results[api.name] === undefined')
+            warn Please Enter in a search term
 
 .container(data-ng-show='tabs.resourcesTab')
   .row
-    .col-md-4
-      h2 FatSecret 
-        span.small
-          a(href='http://platform.fatsecret.com/api/') api
+    .col-md-4(data-ng-repeat='api in resource_info.apis')
+      h2 {{api.data.print_name}}  
+        span.small(ng-show='api.data.api_url_link !== undefined')
+          a(href='{{ api.data.api_url_link }}') api
       blockquote.quote
-        p
-          | The FatSecret Platform API provides a suite of nutrition, exercise and weight management features that can easily be embedded in your web pages with JavaScript.
-        p
-          | We've made it as easy as adding a single line of JavaScript to your web pages to get a full, integrated application working for your site, together with a variety of functions and utilities for configuring and adjusting style, layout and presentation of the application on your web pages, and mechanisms for enabling deep integration with your existing website members and your site.
-        small
-          cite(title='Fat Secret') fatsecret.com
-      p
-        a.btn.btn-default(href='#', role='button') View details »
-    .col-md-4
-      h2 LabelAPI 
-        span.small
-          a(href='http://developer.foodessentials.com/api') api
-      blockquote.quote
-        p
-          | At the root of our API is the FoodEssentials Personalized Dietary Profile.  The profile powers your app to automatically adapt to the specific dietary requirements of each of your users. Use it to set which nutrients, additives, allergens, and ingredients are shown in your app. It also sets which of those properties is used to base personalized dietary recommendations on.
-        small
-          cite(title='LabelAPI') labelapi.com
-      p
-        a.btn.btn-default(href='#', role='button') View details »
-    .col-md-4
-      h2 Coming Soon
+        p(data-ng-repeat='quote in api.data.quote')
+          {{ quote }}
+        small(data-ng-show='{{api.data.quote_attr !== undefined}}')
+          cite {{api.data.quote_attr}}
       p
         a.btn.btn-default(href='#', role='button') View details »

@@ -3,30 +3,40 @@
 // TODO: - Search with special characters
 //       - Tab switching scenarios
 //       - Validate results after a non-'fresh' app load
+
+// SearchController tests
  
 describe('SearchController', function() {
   var scope,
       $httpBackend,
-      mockResults; 
+      mockResults,
+      mockInfo,
+      timeout;
 
   // define our ng-app
   beforeEach(angular.mock.module('HiveMindHealth'));
 
   // inject dependencies
-  beforeEach(angular.mock.inject(function($rootScope, $controller, _$httpBackend_) {
+  beforeEach(angular.mock.inject(function($rootScope, $controller, _$httpBackend_, $timeout) {
     scope        = $rootScope.$new();
     $httpBackend = _$httpBackend_;
+    timeout      = $timeout;
 
     // define mock http behavior
 
     mockResults = getMockResults();
+    mockInfo    = getMockInfo();
 
-    $httpBackend.when('GET', '/search/bananas').respond(
+    $httpBackend.when('GET', '/search/enabledAPI/bananas').respond(
       mockResults.bananas
     );
 
-    $httpBackend.when('GET', '/search/gobbledyGuk').respond(
+    $httpBackend.when('GET', '/search/enabledAPI/gobbledyGuk').respond(
       mockResults.noResults
+    );
+
+    $httpBackend.when('GET', '/apiInfo').respond(
+      mockInfo
     );
 
     // declare the controller and inject our empty scope
@@ -46,6 +56,11 @@ describe('SearchController', function() {
       // do the search
       scope.search.search_term = "bananas";
       scope.doSearch();
+      // flush the /apiInfo get request
+      $httpBackend.flush()
+      // the timeout that exists in the SearchController must be flushed
+      timeout.flush();
+      // flush the /search get request
       $httpBackend.flush()
     });
 
@@ -57,6 +72,15 @@ describe('SearchController', function() {
       expect(scope.tabs.resultsTab).toBe(true);
       expect(scope.tabs.resourcesTab).toBe(false);
     });
+
+    it('should have results defined for the enabledAPI', function() {
+      expect(scope.search_results['enabledAPI'].results).toBeDefined();
+      expect(scope.search_results['enabledAPI'].results.length).toBeGreaterThan(0);
+    });
+
+    it('should not have results defined for the disabledAPI', function() {
+      expect(scope.search_results['disabledAPI']).toBeUndefined();
+    });
   });
 
   // validate search behavior on a fresh app load, when the search string is empty
@@ -64,7 +88,12 @@ describe('SearchController', function() {
     beforeEach(function() {
       // do the search
       scope.search.search_term = "";
+      // flush the /apiInfo get request
       scope.doSearch();
+      // the timeout that exists in the SearchController must be flushed
+      timeout.flush();
+      // flush the /search get request
+      $httpBackend.flush();
       // this helps us make sure our controller didn't bother calling
       //   the factory with an empty string.
       $httpBackend.verifyNoOutstandingExpectation();
@@ -82,11 +111,11 @@ describe('SearchController', function() {
 
     // if search_results are defined, the view will not behave correctly
     it('should have no search_results defined', function() {
-      expect(scope.search_results).toBeUndefined();
+      expect(scope.search_results).toEqual({});
     });
 
     it('should have no search_results defined', function() {
-      expect(scope.search_results).toBeUndefined();
+      expect(scope.search_results).toEqual({});
     });
   });
 
@@ -96,7 +125,12 @@ describe('SearchController', function() {
       // do the search
       scope.search.search_term = "gobbledyGuk";
       scope.doSearch();
+      // flush the /search get
       $httpBackend.flush()
+      // the timeout that exists in the SearchController must be flushed
+      timeout.flush();
+      // the timeout that exists in the SearchController must be flushed
+      $httpBackend.flush();
     });
 
     it('should shrink the jumbotron', function() {
@@ -110,16 +144,14 @@ describe('SearchController', function() {
       expect(scope.tabs.resourcesTab).toBe(false);
     });
 
-    it('should be displaying only api_info', function() {
-      expect(typeof scope.search_results.api_info).toEqual("object");
-    });
-
     it('should have results defined but length == 0', function() {
-      expect(scope.search_results.results).toBeDefined();
-      expect(scope.search_results.results.length).toEqual(0);
+      expect(scope.search_results['enabledAPI'].results).toBeDefined();
+      expect(scope.search_results['enabledAPI'].results.length).toEqual(0);
     });
   });
 });
+
+// ResultsController tests
 
 describe('ResultsController', function() {
   var scope,
@@ -226,23 +258,20 @@ function getMockResults() {
           "carbs": "22.84g",
           "protein": "1.09g"
         },
-      ],
-      "api_info": {
-        "print_name": "FatSecret",
-        "api_url": "http:\/\/platform.fatsecret.com\/rest\/server.api",
-        "api_url_link": "http:\/\/platform.fatsecret.com\/api",
-        "site_url": "http:\/\/fatsecret.com",
-        "quote_attr": "fatsecret.com",
-        "quote": [
-          "The FatSecret Platform API provides a suite of nutrition, exercise and weight management features that can easily be embedded in your web pages with JavaScript.",
-          "We've made it as easy as adding a single line of JavaScript to your web pages to get a full, integrated application working for your site, together with a variety of functions and utilities for configuring and adjusting style, layout and presentation of the application on your web pages, and mechanisms for enabling deep integration with your existing website members and your site."
-        ]
-      } 
+      ]
     },
     "noResults": {
-      "results": [ ],
-      "api_info": {
+      "results": [],
+    }
+  };
+}
+
+function getMockInfo() {
+  return [
+    { name: "enabledAPI",
+      data: { 
         "print_name": "FatSecret",
+        "active": true,
         "api_url": "http:\/\/platform.fatsecret.com\/rest\/server.api",
         "api_url_link": "http:\/\/platform.fatsecret.com\/api",
         "site_url": "http:\/\/fatsecret.com",
@@ -252,8 +281,14 @@ function getMockResults() {
           "We've made it as easy as adding a single line of JavaScript to your web pages to get a full, integrated application working for your site, together with a variety of functions and utilities for configuring and adjusting style, layout and presentation of the application on your web pages, and mechanisms for enabling deep integration with your existing website members and your site."
         ]
       }
+    },
+    { name: "ImNotEnabled",
+      data: { 
+        "print_name": "HealthNuts",
+        "active": false,
+        "api_url": "http:\/\/foo.bar.com\/rest\/server.api",
+        "site_url": "http:\/\/foobar.com",
+      }
     }
-  };
+  ];
 }
-
-

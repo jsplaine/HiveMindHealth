@@ -1,5 +1,6 @@
-{
+{ 
   "fatsecret" : {
+    "active"       : true,
     "print_name"   : "FatSecret",
     "api_url"      : "http://platform.fatsecret.com/rest/server.api",
     "api_url_link" : "http://platform.fatsecret.com/api",
@@ -11,6 +12,15 @@
     
       "We've made it as easy as adding a single line of JavaScript to your web pages to get a full, integrated application working for your site, together with a variety of functions and utilities for configuring and adjusting style, layout and presentation of the application on your web pages, and mechanisms for enabling deep integration with your existing website members and your site."
     
+    ]
+  },
+  "reddit" : {
+    "active"       : false,
+    "print_name"   : "Reddit",
+    "api_url_link" : "http://www.reddit.com/dev/api",
+    "site_url"     : "http://reddit.com",
+    "quote"        : [
+      "Coming Soon"
     ]
   }
 }

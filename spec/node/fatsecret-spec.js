@@ -1,3 +1,5 @@
+'use strict';
+
 // ToDo: Replace this spec with a standard RESTfulness validator
 describe('FatSecret without calling the api factory', function() {
   var populatedResults = ['id', 'title', 'url', 'unit', 'calories', 
