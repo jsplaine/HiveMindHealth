@@ -70,6 +70,9 @@ HiveMindHealth.controller('SearchController', function($scope, $location, $timeo
       return;
     }
 
+    // switch to the results tab
+    tabService.showResults($scope.tabs);
+
     // collapse the jumbotron
     $scope.hideJumbo = true;
 
@@ -77,8 +80,6 @@ HiveMindHealth.controller('SearchController', function($scope, $location, $timeo
     searchService.searchAPIs(apiInfo.apis, $scope.search.search_term, 
                                $scope.search_results, function(data) {
       $location.path('/s/' + $scope.search.search_term);
-      // switch to the results tab
-      tabService.showResults($scope.tabs);
     })
   }
 });
@@ -240,6 +241,7 @@ HiveMindHealth.factory('searchService', function($http) {
        
       $http.get('/search/' + apiName + '/' + searchTerm, { cache: true })
         .success(function(data) { 
+          // note that this removes the inProgress flag
           searchResults[apiName] = data;
           callB();
          })

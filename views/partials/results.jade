@@ -13,13 +13,15 @@
           span.small 
             a(href='{{ api.data.api_url_link }}') api
         blockquote
-          div(ng-show='search_results[api].results.length < 1')
+          div(ng-show='search_results[api.name].results.length < 1')
             span
               | no results
           div(data-ng-repeat='result in search_results[api.name].results')
             a(href='{{result.url}}') {{result.title}}
           div.alert.alert-warning(ng-show='search_results[api.name] === undefined')
             warn Please Enter in a search term
+          div.in-progress(ng-show='search_results[api.name].inProgress !== undefined')
+            img(src='/img/loading.gif')
 
 .container(data-ng-show='tabs.resourcesTab')
   .row

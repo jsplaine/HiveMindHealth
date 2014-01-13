@@ -34,3 +34,8 @@ input {
   background-repeat: no-repeat;
   padding: 8px 0 0 10px;
 }
+
+/* Progress loading wheel */
+.in-progress {
+  margin-left: 10px;
+}
