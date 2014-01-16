@@ -2,32 +2,33 @@
   ul.nav.nav-tabs
     li#resources(data-ng-click='showResources()' ng-class='{ active: tabs.resourcesTab }')
       a(href='javascript: void(0)') Resources
-    li#results(data-ng-click='showResults()' ng-class='{ active: tabs.resultsTab }')
+    li#results(data-ng-click='showResults()' data-ng-class='{ active: tabs.resultsTab }')
       a(href='javascript: void(0)') Results
 
 .container(data-ng-show='tabs.resultsTab')
   .row
     .col-md-4(data-ng-repeat='api in resource_info.apis')
-      div(ng-show='api.data.active === true')
+      div(data-ng-show='api.data.active === true')
         h2 {{ api.data.print_name }} 
           span.small 
             a(href='{{ api.data.api_url_link }}') api
         blockquote
-          div(ng-show='search_results[api.name].results.length < 1')
+          div(data-ng-show='search_results[api.name].results.length < 1')
             span
               | no results
           div(data-ng-repeat='result in search_results[api.name].results')
-            a(href='{{result.url}}') {{result.title}}
+            div.result-block(data-ng-class-odd="'shade'")
+              a(data-ng-show='result.url && result.title' href='{{result.url}}') {{result.title}}
           div.alert.alert-warning(ng-show='search_results[api.name] === undefined')
             warn Please Enter in a search term
-          div.in-progress(ng-show='search_results[api.name].inProgress !== undefined')
+          div.in-progress(data-ng-show='search_results[api.name].inProgress !== undefined')
             img(src='/img/loading.gif')
 
 .container(data-ng-show='tabs.resourcesTab')
   .row
     .col-md-4(data-ng-repeat='api in resource_info.apis')
       h2 {{api.data.print_name}}  
-        span.small(ng-show='api.data.api_url_link !== undefined')
+        span.small(data-ng-show='api.data.api_url_link !== undefined')
           a(href='{{ api.data.api_url_link }}') api
       blockquote.quote
         p(data-ng-repeat='quote in api.data.quote')

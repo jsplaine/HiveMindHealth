@@ -26,7 +26,7 @@ if (typeof process.env.FATSECRETKEYS === 'string') {
 var fatSecretRestUrl = process.env.FATSECRETURL // for testing
                     || require('../../config/resources').fatsecret.api_url;
 
-log.debug("FatSecret URL:", fatSecretRestUrl);
+log.info("FatSecret URL:", fatSecretRestUrl);
 
 /*
  * Constants
@@ -118,14 +118,13 @@ var FatSecret = function(reqType, searchTerm) {
   reqObj.oauth_signature = hashedBaseStr;
 
   /*
-   * @description post to FatSecret and return the results
-   *
-   * @param reqType {String}       the type of request we're making
-   * @param searchTerm {String}    the search term
+   * @description return an object containing a get method which
+   *  passes search results to a given callback.
    * 
-   * @return  {Object}             the search results; throws if response statusCode
-   *                                ! /2??/
+   * @return  {Object}        Object containing a function which calls the
+   *                            FatSecret API
    */
+
   return {
     get: function(callb) {
       rest.post(fatSecretRestUrl, {
@@ -134,11 +133,11 @@ var FatSecret = function(reqType, searchTerm) {
         if (response.statusCode.toString().match(/2??/)) {
           callb(foodSearchAdapt(content, searchTerm));
         } else {
+          // XXX This could fill disk space ..
           log.error("response.statusCode !~ /2??/, response:" + response);
-          throw "post failed with status code: " + response.statusCode;
         }
       });
-    },
+    }
   };
 }
 

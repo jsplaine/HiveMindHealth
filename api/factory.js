@@ -7,6 +7,7 @@
  */
 
 var fatSecret = require('./fatsecret/fatsecret'),
+    reddit    = require('./reddit/reddit'),
     log       = require('log4js').getLogger(),
     resources = require('../config/resources');
 
@@ -23,8 +24,13 @@ var APIs = {
   },
   // Reddit
   reddit : {
-    obj:    undefined,
+    obj:    reddit,
     info:   resources.reddit 
+  },
+  // Wikipedia
+  wikipedia : {
+    obj:    undefined,
+    info:   resources.wikipedia 
   }
 };
 
@@ -81,6 +87,7 @@ var getResults = function(req, res) {
   try {
     var apiObj = api.obj("search", searchTerm);
     log.debug("searchTerm:", searchTerm);
+
     apiObj.get(function(r) {
       result.results = r;
       res.json(result);

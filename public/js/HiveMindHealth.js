@@ -231,21 +231,26 @@ HiveMindHealth.factory('searchService', function($http) {
   searchFactory.searchAPIs = function(apis, searchTerm, searchResults, callB) {
     for (var i = 0, len = apis.length; i < len; i++) {
       var api = apis[i];
+
+      // skip inactive apis
       if (api.data.active !== true) {
-        // skip inactive apis
         continue;
       }
 
       var apiName            = apis[i].name;
       searchResults[apiName] = { inProgress: true }; 
-       
-      $http.get('/search/' + apiName + '/' + searchTerm, { cache: true })
-        .success(function(data) { 
-          // note that this removes the inProgress flag
-          searchResults[apiName] = data;
-          callB();
-         })
-      ;  
+      
+      var getResults = function(apiName, searchResults) {
+        $http.get('/search/' + apiName + '/' + searchTerm, { cache: true })
+          .success(function(data) { 
+            // note that this removes the inProgress flag
+            searchResults[apiName] = data;
+            callB();
+          })
+        ;  
+      };
+
+      getResults(apiName, searchResults);
     }
   };
 

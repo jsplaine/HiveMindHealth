@@ -77,7 +77,7 @@ describe("the api factory's getResults method", function() {
   it('provides an empty result set with a disabled api', function() {
     runs(function() {
       fakeReq.params.searchTerm = "banana";
-      fakeReq.params.apiName    = "reddit";
+      fakeReq.params.apiName    = "wikipedia";
       factoryResults(fakeReq, fakeRes);
     });
 
@@ -147,7 +147,7 @@ describe("the api factory's getInfo method", function() {
     }, 'results', 100);  
 
     runs(function() {
-      expect(result.length).toEqual(2);
+      expect(result.length).toEqual(3); // the current API count
       expect(result[0].data).toEqual(jasmine.any(Object));
       expect(result[0].name).toEqual(jasmine.any(String));
     });

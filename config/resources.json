@@ -15,10 +15,22 @@
     ]
   },
   "reddit" : {
-    "active"       : false,
+    "active"       : true,
     "print_name"   : "Reddit",
+    "api_url"      : "http://www.reddit.com",
     "api_url_link" : "http://www.reddit.com/dev/api",
     "site_url"     : "http://reddit.com",
+    "quote_attr"   : "programmableweb.com",
+    "quote"        : [
+      "The Reddit API allows you to access the user submitted and rated stories on reddit.com. It also provides advanced functionality, including user account information and sub-reddit moderation."
+    ]
+  },
+  "wikipedia" : {
+    "active"       : false,
+    "print_name"   : "Wikipedia",
+    "api_url"      : "http://www.wikipedia.com",
+    "api_url_link" : "http://www.reddit.com/dev/api",
+    "site_url"     : "http://www.wikipedia.com",
     "quote"        : [
       "Coming Soon"
     ]

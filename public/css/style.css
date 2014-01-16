@@ -39,3 +39,13 @@ input {
 .in-progress {
   margin-left: 10px;
 }
+
+/* Each result block */
+div.result-block {
+  padding: 2px;
+}
+
+/* white background */
+.shade {
+  background-color: #F2EFE5;
+}
