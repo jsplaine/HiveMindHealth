@@ -6,19 +6,13 @@ body {
   background-repeat: repeat;
 }
 
-/* not working / not able to overload bootstraps styling? */
-input {
-  /* Use the mesh background in our search form field */
-  background-color: none;
-  background: url('../img/sneaker_mesh_fabric.png');
-
-  background-repeat: repeat;
-}
-
 /* Background top */
 .jumbotron {
   background: url('../img/Birch_compressed.jpg');
   background-position:center; 
+  -webkit-box-shadow: 0px 5px 10px 0px #888888;
+  -moz-box-shadow:    0px 5px 10px 0px #888888;
+  box-shadow:         0px 5px 10px 0px #888888;
 }
 
 .back-right-img {
@@ -45,7 +39,7 @@ div.result-block {
   padding: 2px;
 }
 
-/* white background */
-.shade {
+/* light-cream background */
+div.shade {
   background-color: #F2EFE5;
 }

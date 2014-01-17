@@ -48,6 +48,16 @@ HiveMindHealth.controller('SearchController', function($scope, $location, $timeo
   tabService.showResources($scope.tabs);
 
   /**
+   * showJumbo
+   *
+   * show the jumboTron
+   */
+
+  $scope.showJumbo = function() {
+    $scope.hideJumbo = false;
+  }
+
+  /**
    * doSearch
    *
    * @description Handles search processing, shrinking the jumbotron, and
