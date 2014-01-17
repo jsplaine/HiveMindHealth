@@ -29,10 +29,10 @@ var REQ_TYPES = {
 
 // the subreddits to query
 var SUBREDDITS = [ 
-  "health",
   "nutrition",
   "alternativehealth",
-  "vegetarian"
+  "recipies",
+  "fitmeals"
 ];
 
 var subredditPath = "r/" + SUBREDDITS.join("+");
