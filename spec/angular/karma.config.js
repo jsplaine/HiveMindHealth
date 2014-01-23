@@ -13,6 +13,7 @@ module.exports = function(config) {
       'angular.min.js',
       'angular-route.js',
       'angular-mocks.js',
+      'ui-bootstrap-tpls-0.10.0.js',
 
       // jasmine jquery helper
      'jquery-1.10.2.min.js',

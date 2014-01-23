@@ -9,33 +9,41 @@
  */
 
 var log            = require('log4js').getLogger(),
+    apiName        = "reddit",
     request        = require('request'),
-    searchPath     = "search.json?q=",
-    afterQueryPath = "&sort=top&restrict_sr=on&t=all#page=1";
+    allHtmlEnt     = require('html-entities').XmlEntities;
 
-var baseUrl = process.env.REDDITURL // for testing
-              || require('../../config/resources').reddit.api_url;
-
-log.info("Reddit URL:", baseUrl);
+// Contains decode() method for html entity decodeing
+var htmlEntities = new allHtmlEnt;
 
 /*
  * Constants
  */
 
-// Map of request types to 3rd party API action/string/method
-var REQ_TYPES = {
-  "search" : "search.json?q="
-};
-
-// the subreddits to query
+// The subreddits to query
 var SUBREDDITS = [ 
   "nutrition",
-  "alternativehealth",
-  "recipies",
-  "fitmeals"
+  "foodscience",
+  "askscience",
+  "youshouldknow"
 ];
 
-var subredditPath = "r/" + SUBREDDITS.join("+");
+// The base URL
+var BASEURL = process.env.REDDITURL // for testing
+              || require('../../config/resources').reddit.api_url;
+log.info("Reddit URL:", BASEURL);
+
+// Various reddit subpaths
+var SUBPATHS = {
+   afterQuery   : "&restrict_sr=on&t=all",
+   search       : "search.json?q=",
+   subreddits   : "r/" + SUBREDDITS.join("+")
+};
+
+// Map of request types to 3rd party API action/string/method
+var REQ_TYPES = {
+  "search" : SUBPATHS.search
+};
 
 /*
  * @description Reddit Constructor.  Throws if the arguments are
@@ -61,11 +69,11 @@ var Reddit = function(reqType, searchTerm) {
   // spaces get replaced with plus signs
   searchTerm = searchTerm.replace(/\s+/g, '+');
 
-  var reqUrl = baseUrl            + '/' + 
-               subredditPath      + '/' + 
-               REQ_TYPES[reqType] + 
-               searchTerm         +
-               afterQueryPath;
+  var reqUrl = BASEURL             + '/' + 
+               SUBPATHS.subreddits + '/' + 
+               REQ_TYPES[reqType]  + 
+               searchTerm          +
+               SUBPATHS.afterQuery;
 
   /*
    * @description return an object containing a get function which
@@ -130,10 +138,23 @@ function redditSearchAdapt(jsonRes, searchTerm) {
  */
 
 function translateRedditPost(post) {
-  var ret      = {};
-  
-  ret["url"]   = post.url   || undefined;
-  ret["title"] = post.title || undefined;
+  var ret = {};
+ 
+  // set consumable fields
+
+  ret.url       = post.url       || undefined;
+  ret.title     = post.title     || undefined;
+  ret.upvotes   = post.ups       || undefined;
+  ret.subreddit = post.subreddit || undefined;
+  ret.text      = post.selftext_html 
+    // decode html entities
+    ? htmlEntities.decode(post.selftext_html)
+    : undefined;
+  ret.subreddit_link = post.subreddit 
+    ? BASEURL + "/r/" + post.subreddit 
+    : undefined;
+
+  ret.type = apiName;
 
   return ret;
 }

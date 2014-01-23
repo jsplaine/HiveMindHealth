@@ -11,20 +11,21 @@
  * Dependencies
  */
 
-var rest   = require('restler'),
-    crypto = require('crypto'),
-    log    = require('log4js').getLogger(),
+var rest    = require('restler'),
+    crypto  = require('crypto'),
+    log     = require('log4js').getLogger(),
+    apiName = "fatsecret",
     keys;
 
 // for testing, we recognize a FATSECRETKEYS variable
 if (typeof process.env.FATSECRETKEYS === 'string') {
   keys = JSON.parse(process.env.FATSECRETKEYS);
 } else {
-  keys = require('../../config/privatekeys').fatsecret;
+  keys = require('../../config/privatekeys')[apiName];
 }
 
 var fatSecretRestUrl = process.env.FATSECRETURL // for testing
-                    || require('../../config/resources').fatsecret.api_url;
+                    || require('../../config/resources')[apiName].api_url;
 
 log.info("FatSecret URL:", fatSecretRestUrl);
 
@@ -196,14 +197,14 @@ function foodSearchAdapt(jsonRes, searchTerm) {
 
 function translateFoodObj(foodObj) {
   var ret = {};
-  
-  ret[LOOKUP["food_id"]]   = foodObj.food_id    || undefined;
-  ret[LOOKUP["food_name"]] = foodObj.food_name  || undefined;
-  ret[LOOKUP["url"]]       = foodObj.food_url   || undefined;
 
-  // Split a string like this (see below), into key value pairs that 
-  // our caller will understand;
-  // "Per 100g - Calories: 567kcal | Fat: 49.24g | Carbs: 16.13g | Protein: 25.80g"; 
+  // Set consumable fields
+  
+  ret.brand = foodObj.brand_name || undefined;
+  ret.title = foodObj.food_name  || undefined;
+  ret.url   = foodObj.food_url   || undefined;
+
+  ret.type = apiName; 
 
   if (foodObj.food_description === undefined) {
     // There's nothing left to do if there's no nutrient info to parse
@@ -211,33 +212,11 @@ function translateFoodObj(foodObj) {
     return ret;
   }
 
-  var tmp   = foodObj.food_description.split(/ - /);
-  var unit  = tmp[0];
-  var nutri = tmp[1];
-
   // split out unit and nutrient description
-  ret.unit  = tmp[0], 
-      nutri = tmp[1];
+  var tmp   = foodObj.food_description.split(/ - /);
 
-  // construct the nutrient portion of consumable object 
-  tmp = nutri.split(/ \| /);
-  for (var i = 0, len = tmp.length; i < len; i += 1) {     
-    var tmp1 = tmp[i].split(/: /);
-    if (tmp1.length !== 2) {
-      log.error("skipping; can't parse: " + tmp[i]);
-      continue;
-    }
-    var key = tmp1[0];
-    var val = tmp1[1];
-    
-    if (LOOKUP[key] !== undefined) {
-      ret[LOOKUP[key]] = val;    
-    } else {
-      // skip (and log), we don't know this k ey
-      log.error("skipping; we don't know key: " + key);
-      continue;
-    }
-  }
+  ret.unit  = tmp[0];
+  ret.nutri = tmp[1];
 
   return ret;
 }

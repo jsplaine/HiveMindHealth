@@ -54,6 +54,11 @@ app.get('/results', function(req, res) {
   res.render('partials/results');
 });
 
+app.get('/result/:resultType', function(req, res) {
+  console.log(req.params);
+  res.render('partials/' + req.params.resultType);
+});
+
 app.get('/s/:searchTerm', function(req, res) {
   res.render('index');
 });

@@ -16,9 +16,8 @@
           div(data-ng-show='search_results[api.name].results.length < 1')
             span
               | no results
-          div(data-ng-repeat='result in search_results[api.name].results')
-            div.result-block(data-ng-class-odd="'shade'")
-              a(data-ng-show='result.url && result.title' href='{{result.url}}') {{result.title}}
+          div(data-ng-repeat='res in search_results[api.name].results')
+            div.result-block(data-ng-class-odd="'shade'" result='res')
           div.alert.alert-warning(ng-show='search_results[api.name] === undefined')
             warn Please Enter in a search term
           div.in-progress(data-ng-show='search_results[api.name].inProgress !== undefined')

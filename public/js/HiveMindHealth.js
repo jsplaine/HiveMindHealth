@@ -4,7 +4,7 @@
  * Master module
  */
 
-var HiveMindHealth = angular.module('HiveMindHealth', ['ngRoute']);
+var HiveMindHealth = angular.module('HiveMindHealth', ['ngRoute', 'ui.bootstrap']);
 
 /**
  * Routes
@@ -21,6 +21,21 @@ HiveMindHealth.config(function($routeProvider, $locationProvider) {
     .when('/s/:searchTerm', { controller: 'ResultsController',
                               templateUrl: '/results' })
     .otherwise({ redirectTo: '/' });
+});
+
+/**
+ * run block scrollTo()
+ *
+ * @description Defines global $rootScope.scrollTo(dest)
+ */
+
+HiveMindHealth.run(function ($rootScope, $location, $anchorScroll) {
+  $rootScope.scrollTo = function(dest) {
+    $location.hash(dest);
+    $anchorScroll();
+    // ditch the url anchor hash
+    $location.hash("");
+  };
 });
 
 /**
@@ -265,4 +280,33 @@ HiveMindHealth.factory('searchService', function($http) {
   };
 
   return searchFactory;
+});
+
+/*
+ * Directives
+ */
+
+/*
+ * resultBlock
+ *
+ * @description Defines and returns an angular directive that
+ *  deals with assigning the matching html element to an
+ *  API-type-specific result block.
+ * 
+ * @returns the resultBlock directive
+ */
+
+HiveMindHealth.directive('resultBlock', function() {
+  return {
+    restrict: 'C',
+    scope: {
+      result : '=',
+    },
+    template: '<div ng-include="getTemplateUrl()"></div>',
+    controller: ['$scope', function ($scope) { 
+      $scope.getTemplateUrl = function () { 
+        return '/result/' + $scope.result.type + '-result';
+      }; 
+    }]
+  };
 });

@@ -1,0 +1,7 @@
+a(data-ng-show='result.url && result.title' href='{{result.url}}') {{ result.title }} 
+br
+span.small
+  {{ result.upvotes }} upvotes | 
+  a(href='{{ result.subreddit_link }}') r/{{ result.subreddit }}
+  span  | 
+  span.tool-tip(tooltip-placement="top" tooltip-trigger="click" tooltip-html-unsafe="{{ result.text }}") [toggle text]

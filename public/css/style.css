@@ -15,10 +15,16 @@ body {
   box-shadow:         0px 5px 10px 0px #888888;
 }
 
+/* XXX use media query and resize */
 .back-right-img {
   position: absolute;
   right: 10px;
   top: 60px;
+}
+
+/* Less padding for the result columns */
+div.col-md-4.ng-scope {
+  padding: 0 0 5px 0;
 }
 
 /* API resource quotes */
@@ -34,12 +40,47 @@ body {
   margin-left: 10px;
 }
 
-/* Each result block */
+/* RESULT BLOCKS */
+
 div.result-block {
-  padding: 2px;
+  padding: 5px;
 }
 
 /* light-cream background */
 div.shade {
   background-color: #F2EFE5;
+}
+
+/* fatsecret's unit of measure */
+div.result-block .unit {
+  float: right;
+  font-weight: bold;
+}
+
+/* tooltip toggle */
+span.tool-tip {
+  border: 1px black dotted;
+  padding: 1px;
+}
+
+/* OVERLOADING BOOTSTRAP TOOLTIP STYLES */
+
+/* change from black background, white text, to the reverse */
+.tooltip-inner {
+  background-color: white !important;
+  /* to override bootstrap's max-width */ 
+  /* XXX use a media query - set dynamically */
+  max-width: 400px;
+  width: 400px !important;
+  color: black !important;
+}
+
+/* array at the bottom of the tooltip */
+.tooltip-arrow {
+  border-top-color: white !important;
+}
+
+/* reddit's tooltip text */
+div.md p {
+  font-size: smaller;
 }

@@ -12,13 +12,12 @@ Visit <a href="http://hivemindhealth.com">HiveMindHealth</a> to take
 
  * FatSecret -- provides a free RESTful API to a comprehensive database
     of nutritional information.
+ * reddit.com/r/nutrition, r/foodscience, r/askscience, 
+    r/youshouldknow -- see what other HiveMinds have to say!
 
 ### Future Resources
 
  * wikipedia.com -- a 'HiveMind' resource
- * reddit.com/r/health, reddit.com/r/alternativehealth, 
-   reddit.com/r/nutrition, reddit.com/r/vegetarian -- see what another 
-    HiveMind has to say!
  * LabelAPI (provided by foodessentials.com) -- another free API tapping
     into nurition information.
  * NutryOS -- an interesting looking in-Beta nutrition resource.
