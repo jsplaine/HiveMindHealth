@@ -87,7 +87,14 @@ var Reddit = function(reqType, searchTerm) {
     get: function(callB) {
       request(reqUrl, function (error, response, body) {
         if (! error) {
-          callB(redditSearchAdapt(JSON.parse(body)));
+          var json;
+          try {
+            json = JSON.parse(body);
+          } catch(e) {
+            log.error("JSON parse() failed", e);
+            json = [];
+          }
+          callB(redditSearchAdapt(json));
         } else {
           log.error("get request to", reqUrl, "failed with", error);
         }
