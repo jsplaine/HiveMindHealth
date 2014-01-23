@@ -55,7 +55,6 @@ app.get('/results', function(req, res) {
 });
 
 app.get('/result/:resultType', function(req, res) {
-  console.log(req.params);
   res.render('partials/' + req.params.resultType);
 });
 
