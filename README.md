@@ -12,8 +12,8 @@ Visit <a href="http://hivemindhealth.com">HiveMindHealth</a> to take
 
  * FatSecret -- provides a free RESTful API to a comprehensive database
     of nutritional information.
- * reddit.com/r/nutrition, r/foodscience, r/askscience, 
-    r/youshouldknow -- see what other HiveMinds have to say!
+ * reddit.com/r/nutrition, r/foodscience, r/healthyfood -- see what other 
+    HiveMinds have to say!
 
 ### Future Resources
 

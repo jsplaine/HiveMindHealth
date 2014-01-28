@@ -21,12 +21,7 @@ var htmlEntities = new allHtmlEnt;
  */
 
 // The subreddits to query
-var SUBREDDITS = [ 
-  "nutrition",
-  "foodscience",
-  "askscience",
-  "youshouldknow"
-];
+var SUBREDDITS = require('../../config/resources').reddit.subreddits;
 
 // The base URL
 var BASEURL = process.env.REDDITURL // for testing
