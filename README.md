@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jsplaine/HiveMindHealth.png?branch=master)](https://travis-ci.org/jsplaine/HiveMindHealth)
+
 # HiveMindHealth - Find consensus on matters of nutrition
 
 An early-stage work in progress, HiveMindHealth will provide a free 
