@@ -95,8 +95,11 @@ HiveMindHealth.controller('SearchController', function($scope, $location, $timeo
       return;
     }
 
-    // switch to the results tab
+    // switch to the results tab and remove focus from text input (also 
+    //  closes soft keyboards)
     tabService.showResults($scope.tabs);
+    // XXX find a better way XXX
+    $('input[placeholder=Search]').blur();
 
     // collapse the jumbotron
     $scope.hideJumbo = true;

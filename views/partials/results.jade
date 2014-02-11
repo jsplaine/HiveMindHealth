@@ -6,7 +6,7 @@
       a(href='javascript: void(0)') Results
 
 .container(data-ng-show='tabs.resultsTab')
-  .row
+  .row.content-row
     .col-md-4(data-ng-repeat='api in resource_info.apis')
       div(data-ng-show='api.data.active === true')
         h2 {{ api.data.print_name }} 
@@ -24,7 +24,7 @@
             img(src='/img/loading.gif')
 
 .container(data-ng-show='tabs.resourcesTab')
-  .row
+  .row.content-row
     .col-md-4(data-ng-repeat='api in resource_info.apis')
       h2 {{api.data.print_name}}  
         span.small(data-ng-show='api.data.api_url_link !== undefined')
