@@ -10,8 +10,7 @@ describe('SearchController', function() {
   var scope,
       $httpBackend,
       mockResults,
-      mockInfo,
-      timeout;
+      mockInfo;
 
   // define our ng-app
   beforeEach(angular.mock.module('HiveMindHealth'));
@@ -20,7 +19,6 @@ describe('SearchController', function() {
   beforeEach(angular.mock.inject(function($rootScope, $controller, _$httpBackend_, $timeout) {
     scope        = $rootScope.$new();
     $httpBackend = _$httpBackend_;
-    timeout      = $timeout;
 
     // define mock http behavior
 
@@ -41,6 +39,8 @@ describe('SearchController', function() {
 
     // declare the controller and inject our empty scope
     $controller('SearchController', { $scope: scope } );
+    // SearchController triggers a get against apiInfo which needs to be flushed
+    $httpBackend.flush()
   }));
 
   // check the mock http object -- if this fails, and an it() doesn't,
@@ -56,10 +56,6 @@ describe('SearchController', function() {
       // do the search
       scope.search.search_term = "bananas";
       scope.doSearch();
-      // flush the /apiInfo get request
-      $httpBackend.flush()
-      // the timeout that exists in the SearchController must be flushed
-      timeout.flush();
       // flush the /search get request
       $httpBackend.flush()
     });
@@ -88,12 +84,7 @@ describe('SearchController', function() {
     beforeEach(function() {
       // do the search
       scope.search.search_term = "";
-      // flush the /apiInfo get request
       scope.doSearch();
-      // the timeout that exists in the SearchController must be flushed
-      timeout.flush();
-      // flush the /search get request
-      $httpBackend.flush();
       // this helps us make sure our controller didn't bother calling
       //   the factory with an empty string.
       $httpBackend.verifyNoOutstandingExpectation();
@@ -126,10 +117,6 @@ describe('SearchController', function() {
       scope.search.search_term = "gobbledyGuk";
       scope.doSearch();
       // flush the /search get
-      $httpBackend.flush()
-      // the timeout that exists in the SearchController must be flushed
-      timeout.flush();
-      // the timeout that exists in the SearchController must be flushed
       $httpBackend.flush();
     });
 

@@ -19,7 +19,15 @@ HiveMindHealth.config(function($routeProvider, $locationProvider) {
     .when('/',              { controller: 'ResultsController',
                               templateUrl: '/results' })
     .when('/s/:searchTerm', { controller: 'ResultsController',
-                              templateUrl: '/results' })
+                              templateUrl: '/results',
+                              // this forces the controller not to be available
+                              //  until config data (apiInfo.data) is populated
+                              resolve: { 
+                                'apiInfoData': function(apiInfo) {
+                                  return apiInfo.promise;
+                                }
+                              }
+                            })
     .otherwise({ redirectTo: '/' });
 });
 
@@ -49,15 +57,15 @@ HiveMindHealth.run(function ($rootScope, $location, $anchorScroll) {
  *  switching to the results tab after an initial search
  */
 
-HiveMindHealth.controller('SearchController', function($scope, $location, $timeout, 
-                                                       tabService, searchService, apiInfo) {
+HiveMindHealth.controller('SearchController', function($scope, $location, tabService, 
+                                                       searchService, apiInfo) {
   // initialize state
   $scope.tabs           = {};
   $scope.search         = {};
   $scope.search_results = {};
 
   // careful -- populated asynchronously
-  $scope.resource_info  = apiInfo;
+  $scope.apiInfo = apiInfo;
 
   // show the resources tab by default
   tabService.showResources($scope.tabs);
@@ -85,16 +93,6 @@ HiveMindHealth.controller('SearchController', function($scope, $location, $timeo
       return;
     }
     
-    // catch the case where we're doing a search before apiInfo
-    //  has had time to populate
-    // XXX fix potention deep recursion
-    if (apiInfo.apis === undefined) {
-      $timeout(function() {
-        $scope.doSearch();
-      }, 200);
-      return;
-    }
-
     // switch to the results tab and remove focus from text input (also 
     //  closes soft keyboards)
     tabService.showResults($scope.tabs);
@@ -105,7 +103,7 @@ HiveMindHealth.controller('SearchController', function($scope, $location, $timeo
     $scope.hideJumbo = true;
 
     // trigger get requests against each API
-    searchService.searchAPIs(apiInfo.apis, $scope.search.search_term, 
+    searchService.searchAPIs(apiInfo.data, $scope.search.search_term, 
                                $scope.search_results, function(data) {
       $location.path('/s/' + $scope.search.search_term);
     })
@@ -144,33 +142,26 @@ HiveMindHealth.controller('ResultsController', function($scope, tabService, $rou
 /**
  * apiInfo
  *
- * @description Singleton 'value' that is an object containing
- *  API resource info for each API.
- *
- * note:  That which depends on apiInfo may have to check to see that
- *  its data field is defined before relying on it.  apiInfo.apis is set
- *  asynchronously.
+ * @description Singleton which returns an object containing an API
+ *  information object, and a promise which, only when resolved,
+ *  indicates that the API information object has been populated.
  */
 
-HiveMindHealth.factory('apiInfo', function($http, $timeout) {
-  var retry   = 10,
-      apiInfo = {};
+HiveMindHealth.service('apiInfo', function($http, $q) {
+  var retry    = 10,
+      deferred = $q.defer(),
+      apiInfo  = { 
+        promise: deferred.promise
+      };
 
-  // set api info
-  (function getApiInfo() {
-    $http.get('/apiInfo', { cache: true })
-      .success(function(res) {
-        apiInfo.apis = res;
-      })
-      .error(function() {
-        if (retry > 0) {
-          getApiInfo();
-          retry--;
-        }
-      })
-    ;
-  })();
-  
+  // set api info data
+  $http.get('/apiInfo', { cache: true })
+    .success(function(res) {
+      apiInfo.data = res;
+      deferred.resolve();
+    })
+  ;
+
   return apiInfo;
 });
 
