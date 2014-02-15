@@ -131,7 +131,7 @@ var FatSecret = function(reqType, searchTerm) {
       rest.post(fatSecretRestUrl, {
         data: reqObj,
       }).on('complete', function(content, response) {
-        if (response.statusCode.toString().match(/2??/)) {
+        if (typeof(response) !== "undefined" && response.statusCode.toString().match(/2??/)) {
           callb(foodSearchAdapt(content, searchTerm));
         } else {
           // XXX This could fill disk space ..
