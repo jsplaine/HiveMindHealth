@@ -2,13 +2,12 @@
 
 # HiveMindHealth - Find consensus on matters of nutrition
 
-An early-stage work in progress, HiveMindHealth will provide a free 
- online portal to numerous online nutrition related resources.  The 
- goal is to help users find consensus on topics of nutrition given 
- a food product, ingredient, or menu item.
+An angular 1.2, express experiment:
 
-Visit <a href="http://hivemindhealth.com">HiveMindHealth</a> to take
- a peek at the current state of the app.
+HiveMindHealth will provide a free online portal to numerous online 
+ nutrition related resources.  The goal is to help users find 
+ consensus on topics of nutrition given a food product, ingredient, 
+ or menu item.
 
 ### Current Resources
 
